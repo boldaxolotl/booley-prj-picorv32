@@ -1,0 +1,73 @@
+CAPI=2:
+# Lint and implementation Targets use real module parameters. All three select
+# the representative RV32IMC configuration exercised by the main regressions.
+name: booley::picorv32-impl:0
+description: Booley lint, synthesis, and FPGA targets for PicoRV32
+
+filesets:
+  rtl:
+    files:
+      - picorv32.v: {file_type: verilogSource}
+  lint_selftest:
+    files:
+      - .booley_project/cores/selftest/bad_lint.v: {file_type: verilogSource}
+  sdc:
+    files:
+      - .booley_project/cores/constraints/asic_core.sdc: {file_type: SDC}
+  xdc:
+    files:
+      - .booley_project/cores/constraints/fpga_core.xdc: {file_type: xdc}
+
+parameters:
+  COMPRESSED_ISA:
+    datatype: int
+    default: 1
+    paramtype: vlogparam
+  ENABLE_MUL:
+    datatype: int
+    default: 1
+    paramtype: vlogparam
+  ENABLE_DIV:
+    datatype: int
+    default: 1
+    paramtype: vlogparam
+
+targets:
+  # Deliberately invalid RTL used only by `doctor --deep`.
+  lint_selftest_bad:
+    flow: lint
+    flow_options:
+      tool: verilator
+    filesets: [lint_selftest]
+    toplevel: bad_lint
+
+  lint_core:
+    flow: lint
+    flow_options:
+      tool: verilator
+      booley: {doctor: [lint]}
+    filesets: [rtl]
+    toplevel: picorv32_axi
+    parameters: [COMPRESSED_ISA, ENABLE_MUL, ENABLE_DIV]
+
+  # `arch` is required by Edalize's generic Yosys backend; Booley supplies the
+  # actual synthesis and timing flow.
+  synth_core:
+    flow: generic
+    flow_options:
+      tool: yosys
+      arch: xilinx
+      booley: {doctor: [synth]}
+    filesets: [rtl, sdc]
+    toplevel: picorv32
+    parameters: [COMPRESSED_ISA, ENABLE_MUL, ENABLE_DIV]
+
+  fpga_core:
+    flow: generic
+    flow_options:
+      tool: vivado
+      part: xc7k70t-fbg676
+      out_of_context: true
+    filesets: [rtl, xdc]
+    toplevel: picorv32_axi
+    parameters: [COMPRESSED_ISA, ENABLE_MUL, ENABLE_DIV]

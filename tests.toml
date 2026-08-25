@@ -1,0 +1,13 @@
+# Named runtime tests. Build-time inputs and parameters remain in the Targets.
+
+[sim_core]
+# `main` selects the normal run; `axi` adds the testbench's +axi_test switch.
+tests = ["main", "axi"]
+select = "+{name}_test"
+
+[sim_wb]
+tests = ["wb"]
+
+[sim_dhry]
+# Dhrystone reads no selection plusarg; this name identifies the report.
+tests = ["dhry"]
