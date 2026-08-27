@@ -38,7 +38,6 @@ _LOCAL_CONFIG_NAME = "booley-leak-guard.toml"
 _MAX_BLOB_BYTES = 256 * 1024 * 1024
 _MAX_DECOMPRESSED_BYTES = 256 * 1024 * 1024
 _MAX_FINDINGS = 100
-_BINARY_RUN_RE = re.compile(rb"[\t\x20-\x7e]{6,}")
 _IDENT_RE = re.compile(r"^(?P<name>.*) <(?P<email>[^<>]*)> \d+ [+-]\d{4}$")
 
 
@@ -186,7 +185,12 @@ def _compile_term(term: str, key: bytes) -> TermPattern:
 
 
 def _combined_matcher(patterns: tuple[TermPattern, ...]) -> re.Pattern[str]:
-    alternatives = (re.escape(pattern.literal) for pattern in patterns)
+    # Prefer longer alternatives so a boundary-invalid prefix cannot consume
+    # the start of a valid longer term and hide it from finditer().
+    alternatives = (
+        re.escape(pattern.literal)
+        for pattern in sorted(patterns, key=lambda pattern: len(pattern.literal), reverse=True)
+    )
     return re.compile("|".join(alternatives), re.IGNORECASE)
 
 
@@ -278,10 +282,9 @@ def _visible_text(data: bytes) -> str:
         raise GuardError("a blob exceeds the inspection size limit")
     if data.startswith(b"\x1f\x8b"):
         data = _gunzip_bounded(data)
-    if b"\x00" not in data[:8192]:
-        return data.decode("utf-8", errors="replace")
-    runs = _BINARY_RUN_RE.findall(data)
-    return "\n".join(run.decode("ascii", errors="ignore") for run in runs)
+    # Decode the complete blob even when it contains NULs. Extracting only
+    # long ASCII runs would silently discard short and non-ASCII terms.
+    return data.decode("utf-8", errors="replace")
 
 
 def _scan_blob(data: bytes, path: str, location: str, config: GuardConfig) -> list[Finding]:

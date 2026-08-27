@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 SCANNER = Path(__file__).parents[2] / ".github/scripts/confidential_content_guard.py"
 SAFE_IDENT = "Safe User <safe@example.test>"
 SENTINEL = "quokka-sentinel-987"
@@ -44,12 +46,14 @@ def _repository(tmp_path: Path) -> tuple[Path, str]:
     return repo, _commit(repo, "initial commit")
 
 
-def _encoded_config() -> str:
+def _encoded_config(*terms: str) -> str:
+    configured_terms = terms or (SENTINEL,)
+    rendered_terms = ", ".join(f'"{term}"' for term in configured_terms)
     document = f'''[guard]
 allowed_authors = ["{SAFE_IDENT}"]
 
 [private]
-words = ["{SENTINEL}"]
+words = [{rendered_terms}]
 '''
     return base64.b64encode(document.encode()).decode()
 
@@ -103,3 +107,28 @@ def test_missing_secret_fails_closed(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "could not complete" in result.stderr
+
+
+def test_overlapping_terms_cannot_hide_a_longer_match(tmp_path: Path) -> None:
+    repo, base = _repository(tmp_path)
+    (repo / "payload.txt").write_text("foobar\n", encoding="utf-8")
+    head = _commit(repo, "add overlapping fixture")
+
+    result = _scan(repo, base, head, config=_encoded_config("foo", "foobar"))
+
+    assert result.returncode == 1
+    assert "confidential term" in result.stderr
+    assert "foobar" not in result.stderr
+
+
+@pytest.mark.parametrize("term", ["Acme", "секрет"])
+def test_binary_blob_terms_are_not_discarded(tmp_path: Path, term: str) -> None:
+    repo, base = _repository(tmp_path)
+    (repo / "payload.bin").write_bytes(b"\x00" + term.encode() + b"\x00")
+    head = _commit(repo, "add binary fixture")
+
+    result = _scan(repo, base, head, config=_encoded_config(term))
+
+    assert result.returncode == 1
+    assert "confidential term" in result.stderr
+    assert term not in result.stderr

@@ -23,6 +23,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # A manual run may be dispatched from any ref, but its contract is
+          # to audit main. Push and PR-target runs retain their event SHA.
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.sha }}
+
+      - name: Record checked-out commit
+        id: checked_out
+        run: echo "sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
 
       - name: Fetch pull-request commit
         if: github.event_name == 'pull_request_target'
@@ -63,6 +70,7 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
+          CHECKED_OUT_SHA: ${{ steps.checked_out.outputs.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_OUTCOME: ${{ steps.scan-pr.outcome }}
           PUSH_OUTCOME: ${{ steps.scan-main.outcome }}
@@ -71,7 +79,7 @@ jobs:
             target_sha="${PR_HEAD_SHA}"
             outcome="${PR_OUTCOME}"
           else
-            target_sha="${GITHUB_SHA}"
+            target_sha="${CHECKED_OUT_SHA:-${GITHUB_SHA}}"
             outcome="${PUSH_OUTCOME}"
           fi
           if [ "${outcome}" = success ]; then
