@@ -30,7 +30,18 @@ booley doctor --deep
 There shouldn't be any Doctor warnings. If any appear, use the `/booley-heal`
 skill to resolve them.
 
-## Create your first Ticket
+## Explore in Interactive Mode first
+
+Start with a guided Codex or Claude Code chat so you can see how the project,
+Targets, and Booley Flows fit together. For example:
+
+> Check the PicoRV32 project status, explain the available Targets, then run a
+> lint or simulation Flow and walk me through the result.
+
+Interactive Mode is the easiest way to learn the demo: you choose each next
+step and can ask questions as the agent inspects or runs the design.
+
+## Then try Ticket Mode
 
 The demo intentionally ships without pre-made Tickets. In a Codex or Claude
 Code chat, ask the agent to use the `booley-ticket-create` skill for a change
@@ -39,7 +50,8 @@ you want to try. For example:
 > Use the booley-ticket-create skill to make a detailed Ticket that adds a
 > small, opt-in PicoRV32 feature and verifies its disabled behavior.
 
-Ticket creation is part of the demo: the skill refines the idea, lets you
+Ticket Mode is an optional next step. Ticket creation is part of that workflow:
+the skill refines the idea, lets you
 review the complete draft, and authors any required Target or control changes
 in the Ticket's isolated workspace before enqueueing it. The configured `main`
 branch therefore stays runnable and Doctor-clean while the Ticket is waiting.
@@ -57,10 +69,11 @@ upstream file is modified.
 
 ## Experiment with the demo
 
-Create a Ticket for something you want to explore. Measure area and
-performance, find critical paths, optimize the design, fix bugs, or add new
-features and RISC-V extensions. Try making the CPU pipelined. See how far you
-can push the models, the design, and Booley itself.
+Explore interactively first: measure area and performance, find critical paths,
+or ask the agent to explain a configuration. Then create a Ticket when you want
+Booley to pursue a well-defined change autonomously—optimize the design, fix a
+bug, add a RISC-V extension, or even try making the CPU pipelined. See how far
+you can push the models, the design, and Booley itself.
 
 ## Targets
 
