@@ -1,0 +1,7 @@
+// Intentional `doctor --deep` simulation failure selected by
+// [flows.sim.selftest]. Zero words trap as illegal instructions, causing the
+// testbench to print the configured `ERROR!` failure sentinel.
+00000000
+00000000
+00000000
+00000000

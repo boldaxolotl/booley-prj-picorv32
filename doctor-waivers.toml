@@ -1,0 +1,13 @@
+version = 1
+
+[[waiver]]
+check = "project.core-file-untracked"
+subject = "dhrystone/dhry.hex,firmware/firmware.hex"
+reason = "The committed post-setup hook deterministically rebuilds both gitignored images from source in every Session Runtime; vendoring generated firmware would create stale duplicate build outputs."
+expires = 2027-08-06
+
+[[waiver]]
+check = "project.memory-image-untracked"
+subject = "dhrystone/dhry.hex"
+reason = "The committed post-setup hook deterministically rebuilds this gitignored image from source in every Session Runtime; vendoring the generated artifact would violate the approved build-on-demand policy."
+expires = 2027-08-06

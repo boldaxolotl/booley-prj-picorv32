@@ -1,0 +1,67 @@
+CAPI=2:
+# Simulation Targets for PicoRV32. Stealth projection makes every fileset path
+# relative to the untouched upstream repository root.
+name: booley::picorv32:0
+description: Booley simulation targets for the PicoRV32 RISC-V CPU core
+
+filesets:
+  rtl:
+    files:
+      - picorv32.v: {file_type: verilogSource}
+
+  tb_main:
+    files:
+      - testbench.v: {file_type: verilogSource}
+    tags: [tb]
+
+  tb_wb:
+    files:
+      - testbench_wb.v: {file_type: verilogSource}
+    tags: [tb]
+
+  tb_dhry:
+    files:
+      - dhrystone/testbench.v: {file_type: verilogSource}
+    tags: [tb]
+
+  firmware:
+    files:
+      - firmware/firmware.hex: {file_type: user, copyto: firmware/firmware.hex}
+
+  firmware_dhry:
+    files:
+      - dhrystone/dhry.hex: {file_type: user, copyto: dhry.hex}
+
+parameters:
+  # The upstream simulation testbenches use this preprocessor switch to set
+  # the DUT's COMPRESSED_ISA module parameter.
+  COMPRESSED_ISA:
+    datatype: int
+    default: 1
+    paramtype: vlogdefine
+
+targets:
+  sim_core:
+    flow: sim
+    flow_options:
+      tool: icarus
+      booley: {doctor: [sim, elab]}
+    filesets: [rtl, tb_main, firmware]
+    toplevel: testbench
+    parameters: [COMPRESSED_ISA]
+
+  sim_wb:
+    flow: sim
+    flow_options:
+      tool: icarus
+    filesets: [rtl, tb_wb, firmware]
+    toplevel: testbench
+    parameters: [COMPRESSED_ISA]
+
+  # The upstream Dhrystone testbench and image both use RV32IM.
+  sim_dhry:
+    flow: sim
+    flow_options:
+      tool: icarus
+    filesets: [rtl, tb_dhry, firmware_dhry]
+    toplevel: testbench

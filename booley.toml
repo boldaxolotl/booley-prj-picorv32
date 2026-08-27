@@ -1,0 +1,39 @@
+# Booley execution policy for the PicoRV32 demo. Build inputs live in the
+# authored FuseSoC cores; named simulation tests live in tests.toml.
+
+[project]
+name = "picorv32"
+
+[stealth]
+# Stealth mode is enabled here to keep the repo self-contained.
+enabled = true
+# The cores shipped with this IP are incompatible with current FuseSoC: the
+# root core fails the CAPI2 schema and the bundled targets use the legacy API.
+ignore_native_cores = true
+
+# Select the provider before running `booley init`; see Booley's provider and
+# authentication documentation for alternatives.
+[agent]
+provider = "codex"
+auth = "subscription"
+
+[sandbox]
+image = "booley-sandbox-riscv"
+
+[flows.sim]
+enabled = true
+pass_sentinels = ["ALL TESTS PASSED.", "DMIPS_Per_MHz:"]
+fail_sentinels = ["ERROR!", "TIMEOUT"]
+trace_files = ["testbench.vcd"]
+
+[flows.elab]
+enabled = true
+
+[flows.lint]
+enabled = true
+
+[flows.synth]
+enabled = true
+
+[flows.fpga]
+enabled = false
