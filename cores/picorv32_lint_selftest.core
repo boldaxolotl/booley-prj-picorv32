@@ -1,0 +1,18 @@
+CAPI=2:
+# Doctor-only lint failure fixture. Keeping this in a dedicated core lets
+# Booley hide it from ordinary Target discovery and selection.
+name: booley::picorv32-lint-selftest:0
+
+filesets:
+  lint_selftest_bad:
+    files:
+      - .booley_project/cores/selftest/bad_lint.v: {file_type: verilogSource}
+
+targets:
+  lint_selftest_bad:
+    flow: lint
+    flow_options:
+      tool: verilator
+      booley: {doctor_selftest: true}
+    filesets: [lint_selftest_bad]
+    toplevel: bad_lint

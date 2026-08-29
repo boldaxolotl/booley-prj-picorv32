@@ -8,9 +8,6 @@ filesets:
   rtl:
     files:
       - picorv32.v: {file_type: verilogSource}
-  lint_selftest:
-    files:
-      - .booley_project/cores/selftest/bad_lint.v: {file_type: verilogSource}
   sdc:
     files:
       - .booley_project/cores/constraints/asic_core.sdc: {file_type: SDC}
@@ -37,14 +34,6 @@ parameters:
     paramtype: vlogparam
 
 targets:
-  # Deliberately invalid RTL used only by `doctor --deep`.
-  lint_selftest_bad:
-    flow: lint
-    flow_options:
-      tool: verilator
-    filesets: [lint_selftest]
-    toplevel: bad_lint
-
   lint_core:
     flow: lint
     flow_options:
