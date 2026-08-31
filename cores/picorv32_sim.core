@@ -24,6 +24,11 @@ filesets:
       - dhrystone/testbench.v: {file_type: verilogSource}
     tags: [tb]
 
+  tb_zbb_disabled:
+    files:
+      - testbench_zbb_disabled.v: {file_type: verilogSource}
+    tags: [tb]
+
   firmware:
     files:
       - firmware/firmware.hex: {file_type: user, copyto: firmware/firmware.hex}
@@ -45,7 +50,7 @@ targets:
     flow: sim
     flow_options:
       tool: icarus
-      booley: {doctor: [sim, elab]}
+      booley: {doctor: [sim]}
     filesets: [rtl, tb_main, firmware]
     toplevel: testbench
     parameters: [COMPRESSED_ISA]
@@ -65,3 +70,10 @@ targets:
       tool: icarus
     filesets: [rtl, tb_dhry, firmware_dhry]
     toplevel: testbench
+
+  sim_zbb_disabled:
+    flow: sim
+    flow_options:
+      tool: icarus
+    filesets: [rtl, tb_zbb_disabled]
+    toplevel: testbench_zbb_disabled
