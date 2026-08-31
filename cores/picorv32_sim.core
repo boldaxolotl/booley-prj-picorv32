@@ -45,7 +45,7 @@ targets:
     flow: sim
     flow_options:
       tool: icarus
-      booley: {doctor: [sim, elab]}
+      booley: {doctor: [sim]}
     filesets: [rtl, tb_main, firmware]
     toplevel: testbench
     parameters: [COMPRESSED_ISA]

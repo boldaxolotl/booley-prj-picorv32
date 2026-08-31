@@ -26,9 +26,6 @@ pass_sentinels = ["ALL TESTS PASSED.", "DMIPS_Per_MHz:"]
 fail_sentinels = ["ERROR!", "TIMEOUT"]
 trace_files = ["testbench.vcd"]
 
-[flows.elab]
-enabled = true
-
 [flows.lint]
 enabled = true
 
