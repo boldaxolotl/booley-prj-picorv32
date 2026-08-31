@@ -10,6 +10,7 @@ runtime/
 # Working notes are local and must not ship.
 plans/
 handoffs/
+SETUP-REPORT.md
 FEEDBACK-REPORT.md
 findings.jsonl
 

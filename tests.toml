@@ -11,3 +11,7 @@ tests = ["wb"]
 [sim_dhry]
 # Dhrystone reads no selection plusarg; this name identifies the report.
 tests = ["dhry"]
+
+[sim_zbb_disabled]
+# The standalone testbench has one fixed disabled-mode scenario.
+tests = ["zbb_disabled"]
