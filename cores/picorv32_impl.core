@@ -28,11 +28,6 @@ parameters:
     datatype: int
     default: 1
     paramtype: vlogparam
-  ENABLE_ZBB:
-    datatype: int
-    default: 0
-    paramtype: vlogparam
-
 targets:
   lint_core:
     flow: lint
@@ -54,16 +49,6 @@ targets:
     filesets: [rtl, sdc]
     toplevel: picorv32
     parameters: [COMPRESSED_ISA, ENABLE_MUL, ENABLE_DIV]
-
-  # Frozen Zbb-enabled candidate paired with synth_core for relative QoR.
-  synth_core_zbb:
-    flow: generic
-    flow_options:
-      tool: yosys
-      arch: xilinx
-    filesets: [rtl, sdc]
-    toplevel: picorv32
-    parameters: [COMPRESSED_ISA, ENABLE_MUL, ENABLE_DIV, ENABLE_ZBB=1]
 
   fpga_core:
     flow: generic
