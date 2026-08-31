@@ -32,7 +32,15 @@ skill to resolve them.
 
 ## Explore in Interactive Mode first
 
-Start with a guided Codex or Claude Code chat so you can see how the project,
+Start the Project's configured Codex or Claude Code chat from the container
+terminal:
+
+```bash
+booley
+```
+
+Bare `booley` is the short form of `booley chat`; both open the provider
+selected by `[agent].provider`. Then ask the agent to show how the project,
 Targets, and Booley Flows fit together. For example:
 
 > Check the PicoRV32 project status, explain the available Targets, then run a
@@ -91,7 +99,7 @@ verdict. The Dhrystone run is metric-based: completion is recognized by its
 `DMIPS_Per_MHz:` score line rather than a self-checking pass message.
 
 For a description of Booley's project configuration and files, see
-[CONFIG.md](https://github.com/boldaxolotl/booley/blob/main/docs/CONFIG.md).
+[CONFIG.md](https://github.com/boldaxolotl/booley/blob/main/docs/user/CONFIG.md).
 
 ## Optional: make Vivado available
 
