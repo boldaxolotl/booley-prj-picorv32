@@ -2,7 +2,7 @@
 
 ## Quick start
 
-Install the latest framework release, then clone both repositories:
+Install the latest Booley release, then clone both repositories:
 
 ```bash
 git clone https://github.com/YosysHQ/picorv32
@@ -68,8 +68,13 @@ execute it.
 
 ## About this demo
 
-This is both a runnable Booley demo and a reference for configuring the
-[YosysHQ/PicoRV32](https://github.com/YosysHQ/picorv32) RTL project.
+The demo IP is [PicoRV32](https://github.com/YosysHQ/picorv32), Claire Wolf's
+open-source RISC-V CPU core. Its small, area-optimized, straightforward
+multi-cycle architecture keeps the RTL approachable and lint, simulation, and
+synthesis runs fast while still exercising Booley on a real design.
+
+This repository is both a runnable Booley demo and a reference for configuring
+Booley projects.
 
 Booley keeps its configuration in this separate repository. Setup adds only
 ignored files and local guidance links to the PicoRV32 checkout; no tracked
