@@ -74,7 +74,7 @@ multi-cycle architecture keeps the RTL approachable and lint, simulation, and
 synthesis runs fast while still exercising Booley on a real design.
 
 This repository is both a runnable Booley demo and a reference for configuring
-PicoRV32.
+Booley projects.
 
 Booley keeps its configuration in this separate repository. Setup adds only
 ignored files and local guidance links to the PicoRV32 checkout; no tracked
