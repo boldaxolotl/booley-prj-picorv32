@@ -19,8 +19,13 @@ Initialize the project on the host:
 booley init
 ```
 
-Open the `picorv32` folder in VS Code and choose **Reopen in Container**. In a
-container terminal, build the generated firmware and run the deep Doctor gate:
+Open the `picorv32` folder in VS Code. A popup notification should offer
+**Reopen in Container**; choose it. If the popup does not appear, press `F1`
+(or `Ctrl+Shift+P`), then run **Dev Containers: Reopen in Container** from the
+Command Palette.
+
+In a container terminal, build the generated firmware and run the deep Doctor
+gate:
 
 ```bash
 bash .booley_project/hooks/post-setup.sh
