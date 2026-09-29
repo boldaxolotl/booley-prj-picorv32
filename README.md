@@ -2,7 +2,7 @@
 
 ## Quick start
 
-Install the latest Booley release, then clone both repositories:
+[Install Booley](https://github.com/boldaxolotl/Booley#installation) (including `booley bootstrap`), then clone both repositories:
 
 ```bash
 git clone https://github.com/YosysHQ/picorv32
