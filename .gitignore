@@ -1,7 +1,15 @@
 # Transient Booley state — do not commit.
 tmp/
+flow-reports/
+/logs/
+/.baseline-wt-*/
+tickets/board/
+tickets/state/
+tickets/waiver-candidates/
 tickets/logs/
 tickets/locks/
+goals/*/
+!goals/history/
 .interactive_logs/
 .runtime/
 worktrees/
@@ -21,6 +29,7 @@ hooks/pre_push_hook.py
 hooks/run_command.py
 hooks/run_tool.py
 hooks/validate_commit_msg.py
+.managed/
 
 # Added by booley init — transient Booley state.
 __pycache__/

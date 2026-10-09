@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Recreate generated inputs in a fresh checkout or ticket worktree.
+# Recreate generated inputs in a fresh checkout or linked worktree.
 set -euo pipefail
 
 project_root="${BOOLEY_WORKTREE:-$(git rev-parse --show-toplevel)}"

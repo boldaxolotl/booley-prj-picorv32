@@ -54,22 +54,38 @@ Targets, and Booley Flows fit together. For example:
 Interactive Mode is the easiest way to learn the demo: you choose each next
 step and can ask questions as the agent inspects or runs the design.
 
-## Then try Ticket Mode
+## Then try Goal Mode
 
-The demo intentionally ships without pre-made Tickets. In a Codex or Claude
-Code chat, ask the agent to use the `booley-ticket-create` skill for a change
-you want to try. For example:
+Goal Mode gives one agent session mandatory Goals that only Booley Flow and
+Specialist evidence can meet. Each session works in its own linked worktree,
+so `main` stays untouched while it runs.
 
-> Use the booley-ticket-create skill to make a detailed Ticket that adds a
-> small, opt-in PicoRV32 feature and verifies its disabled behavior.
+1. In a container terminal, create a worktree for the change:
 
-Ticket Mode is an optional next step. Ticket creation is part of that workflow:
-the skill refines the idea, lets you
-review the complete draft, and authors any required Target or control changes
-in the Ticket's isolated workspace before enqueueing it. The configured `main`
-branch therefore stays runnable and Doctor-clean while the Ticket is waiting.
-Once the Ticket is enqueued, use the run-and-fix skill or `booley run` to
-execute it.
+   ```bash
+   booley worktree new my-change
+   ```
+
+2. In a Codex or Claude Code chat, ask the agent to use the `booley-goal`
+   skill (`/booley-goal` in Claude Code) in that worktree. For example:
+
+   > Use the booley-goal skill in the my-change worktree to add a small,
+   > opt-in PicoRV32 feature and verify its disabled behavior.
+
+   The agent proposes Goals from the Project's Goalsets in
+   `.booley_project/goalsets/` (`feature`, `bugfix`, `refactor`,
+   `verification`) plus any you ask for, and shows them before entering.
+
+3. The agent runs Booley Flows and Specialists until every Goal has fresh
+   evidence. Check progress with `booley goal status` in the worktree or
+   `booley dashboard`.
+
+4. Finish returns a Review Package: the diff, Goal evidence, and any Goal
+   changes you approved. The Goal Branch and worktree stay in place; merging
+   is your call.
+
+See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
+for Goalsets, threshold Goals, approvals, and recovery.
 
 ## About this demo
 
@@ -88,10 +104,10 @@ upstream file is modified.
 ## Experiment with the demo
 
 Explore interactively first: measure area and performance, find critical paths,
-or ask the agent to explain a configuration. Then create a Ticket when you want
-Booley to pursue a well-defined change autonomously—optimize the design, fix a
-bug, add a RISC-V extension, or even try making the CPU pipelined. See how far
-you can push the models, the design, and Booley itself.
+or ask the agent to explain a configuration. Then enter Goal Mode when you want
+an agent to carry a well-defined change through to verified Goals—optimize
+the design, fix a bug, add a RISC-V extension, or even try making the CPU
+pipelined. See how far you can push the models, the design, and Booley itself.
 
 ## Targets
 
