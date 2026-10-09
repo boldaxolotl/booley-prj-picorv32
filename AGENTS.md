@@ -2,7 +2,7 @@
 
 ## Project boundaries
 
-- `picorv32.v` contains the design. Unless a ticket says otherwise, treat the
+- `picorv32.v` contains the design. Unless the user says otherwise, treat the
   upstream cores, subprojects, scripts, firmware, and tests as read-only.
 - Keep Booley-owned files under `.booley_project/`. Root `AGENTS.md` and
   `CLAUDE.md` are ignored local links; never commit Booley artifacts or EDA
