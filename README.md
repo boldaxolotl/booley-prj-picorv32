@@ -7,11 +7,11 @@
 ```bash
 git clone https://github.com/YosysHQ/picorv32
 cd picorv32
-git clone https://github.com/boldaxolotl/booley-prj-picorv32 .booley_project
+git clone https://github.com/boldaxolotl/booley-prj-picorv32 .booley
 ```
 
 The default agent provider is Codex. To use Claude, change `[agent].provider`
-in `.booley_project/booley.toml` before initialization.
+in `.booley/booley.toml` before initialization.
 
 Initialize the project on the host:
 
@@ -28,7 +28,7 @@ In a container terminal, build the generated firmware and run the deep Doctor
 gate:
 
 ```bash
-bash .booley_project/hooks/post-setup.sh
+bash .booley/hooks/post-setup.sh
 booley doctor --deep
 ```
 
@@ -73,7 +73,7 @@ so `main` stays untouched while it runs.
    > opt-in PicoRV32 feature and verify its disabled behavior.
 
    The agent proposes Goals from the Project's Goalsets in
-   `.booley_project/goalsets/` (`feature`, `bugfix`, `refactor`,
+   `.booley/goalsets/` (`feature`, `bugfix`, `refactor`,
    `verification`) plus any you ask for, and shows them before entering.
 
 3. The agent runs Booley Flows and Specialists until every Goal has fresh
