@@ -2,6 +2,8 @@
 
 ## Quick start
 
+This Project revision requires Booley's `.booley/` directory interface (framework issue #1361). For Booley versions using the previous directory interface, use Project commit `9e187ceae6357b47b50bdc835609b4570fd28832` and its [pinned setup instructions](https://github.com/boldaxolotl/booley-prj-picorv32/blob/9e187ceae6357b47b50bdc835609b4570fd28832/README.md). Keep each framework version paired with its matching Project revision; do not update an existing checkout across the directory change before following the framework migration instructions.
+
 [Install Booley](https://github.com/boldaxolotl/Booley#installation) (including `booley bootstrap`), then clone both repositories:
 
 ```bash
