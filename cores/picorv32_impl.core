@@ -10,10 +10,10 @@ filesets:
       - picorv32.v: {file_type: verilogSource}
   sdc:
     files:
-      - .booley_project/cores/constraints/asic_core.sdc: {file_type: SDC}
+      - .booley/cores/constraints/asic_core.sdc: {file_type: SDC}
   xdc:
     files:
-      - .booley_project/cores/constraints/fpga_core.xdc: {file_type: xdc}
+      - .booley/cores/constraints/fpga_core.xdc: {file_type: xdc}
 
 parameters:
   COMPRESSED_ISA:

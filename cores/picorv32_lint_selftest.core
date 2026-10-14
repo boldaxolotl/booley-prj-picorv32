@@ -6,7 +6,7 @@ name: booley::picorv32-lint-selftest:0
 filesets:
   lint_selftest_bad:
     files:
-      - .booley_project/cores/selftest/bad_lint.v: {file_type: verilogSource}
+      - .booley/cores/selftest/bad_lint.v: {file_type: verilogSource}
 
 targets:
   lint_selftest_bad:
