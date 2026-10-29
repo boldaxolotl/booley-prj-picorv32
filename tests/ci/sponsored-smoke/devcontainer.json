@@ -1,6 +1,6 @@
 {
   "name": "Booley PicoRV32 demo: sponsored-mode CI smoke",
-  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:candidate-b0c0de43c205f77bdf66d6f74518710b4c1bd061-40862726051-1",
+  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:candidate-abe3ddbbb6398f28607ecbd2980a2345332eae98-40918839162-1",
   "remoteUser": "agent",
   "containerUser": "agent",
   "workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind",
