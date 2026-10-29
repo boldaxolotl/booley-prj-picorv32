@@ -51,15 +51,20 @@ jobs:
       # The runner image's Node and Docker run the devcontainer CLI.
       - name: Run smoke
         run: python3 tests/ci/sponsored-smoke/run_smoke.py ${{ matrix.args }}
+      # upload-artifact rejects '..' in paths, so resolve the sibling dir first.
+      - name: Locate evidence
+        id: stub
+        if: always()
+        run: echo "dir=$(realpath "$GITHUB_WORKSPACE/../gateway-stub")" >> "$GITHUB_OUTPUT"
       - name: Retain evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sponsored-smoke-${{ strategy.job-index }}-${{ github.run_attempt }}
           # Doctor and Codex output plus the stub's request log; never the
-          # token or keys, which also sit in ../gateway-stub.
+          # token or keys, which also sit in the same directory.
           path: |
-            ${{ github.workspace }}/../gateway-stub/evidence/
-            ${{ github.workspace }}/../gateway-stub/requests.jsonl
+            ${{ steps.stub.outputs.dir }}/evidence/
+            ${{ steps.stub.outputs.dir }}/requests.jsonl
           if-no-files-found: warn
           retention-days: 14
