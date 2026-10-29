@@ -73,20 +73,19 @@ fi
 # is answered by the stub. Without the gateway environment Codex would call
 # OpenAI with no credential, so the request is not sent at all.
 codex_log="$evidence_dir/codex.txt"
-codex_status=0
-if ((${#missing[@]} == 0)); then
+if ((${#missing[@]})); then
+    fail codex-request "not sent: no gateway environment"
+else
     (cd "$project_root" && timeout 180 codex exec "Reply with one word." < /dev/null) > "$codex_log" 2>&1
     codex_status=$?
     cat "$codex_log"
-fi
-if ((${#missing[@]})); then
-    fail codex-request "not sent: no gateway environment"
-elif ((codex_status != 0)); then
-    fail codex-request "codex exec exited $codex_status"
-elif ! grep -qx "$stub_reply" "$codex_log"; then
-    fail codex-request "the stub's reply is not in Codex's output"
-else
-    pass codex-request
+    if ((codex_status != 0)); then
+        fail codex-request "codex exec exited $codex_status"
+    elif ! grep -qx "$stub_reply" "$codex_log"; then
+        fail codex-request "the stub's reply is not in Codex's output"
+    else
+        pass codex-request
+    fi
 fi
 
 if ((failures)); then

@@ -200,6 +200,24 @@ def _judge(
     return problems
 
 
+def _teardown(label: str, stub: subprocess.Popen[bytes], *, keep: bool) -> None:
+    """Remove the container, then stop the stub."""
+    # Remove the container first: it must not leak even if the stub hangs.
+    if not keep:
+        subprocess.run(
+            ["docker", "rm", "-f", *_containers(label)],
+            check=False,
+            capture_output=True,
+            timeout=DOCKER_TIMEOUT_S,
+        )
+    stub.terminate()
+    try:
+        stub.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        stub.kill()
+        stub.wait()
+
+
 def run(
     expect: str, *, without_gateway_env: bool, image: str | None, keep: bool
 ) -> int:
@@ -231,20 +249,7 @@ def run(
         (evidence / "smoke.txt").write_text(result.stdout, encoding="utf-8")
         problems = _judge(expect, result.returncode, result.stdout, request_log)
     finally:
-        # Remove the container first: it must not leak even if the stub hangs.
-        if not keep:
-            subprocess.run(
-                ["docker", "rm", "-f", *_containers(label)],
-                check=False,
-                capture_output=True,
-                timeout=DOCKER_TIMEOUT_S,
-            )
-        stub.terminate()
-        try:
-            stub.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            stub.kill()
-            stub.wait()
+        _teardown(label, stub, keep=keep)
     _log(f"stub request log: {request_log}")
     for problem in problems:
         _log(f"UNEXPECTED: {problem}")
