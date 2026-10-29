@@ -1,0 +1,32 @@
+{
+  "name": "Booley PicoRV32 demo: sponsored-mode CI smoke",
+  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:candidate-abe3ddbbb6398f28607ecbd2980a2345332eae98-40918839162-1",
+  "remoteUser": "agent",
+  "containerUser": "agent",
+  "workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind",
+  "workspaceFolder": "/workspaces/picorv32",
+  "runArgs": ["--add-host=gateway-stub:host-gateway"],
+  "containerEnv": {
+    "BOOLEY_EGRESS": "unproxied",
+    "BOOLEY_AGENT_APP": "codex",
+    "BOOLEY_DIR": "/workspaces/picorv32/.booley",
+    "BOOLEY_MCP_MODE": "interactive",
+    "BOOLEY_PRIMARY_AUTH": "gateway",
+    "BOOLEY_GATEWAY_URL": "https://gateway-stub:8443/v1",
+    "BOOLEY_GATEWAY_TOKEN_COMMAND": "/workspaces/${localWorkspaceFolderBasename}/tests/ci/sponsored-smoke/token.sh",
+    "BOOLEY_GATEWAY_MODEL": "gpt-6-luna",
+    "CODEX_CA_CERTIFICATE": "/workspaces/gateway-stub/certs/ca.pem",
+    "BOOLEY_CREDENTIAL_SCHEMA": "1",
+    "BOOLEY_COMPILER_CACHE_ROOT": "/workspaces/picorv32/.booley/.runtime/compiler-cache/ccache",
+    "PRJ_LIB_DIR": "/home/agent/pdk",
+    "GIT_CONFIG_COUNT": "2",
+    "GIT_CONFIG_KEY_0": "user.name",
+    "GIT_CONFIG_VALUE_0": "Dev",
+    "GIT_CONFIG_KEY_1": "user.email",
+    "GIT_CONFIG_VALUE_1": "dev@localhost"
+  },
+  "initializeCommand": "mkdir -p \"${localWorkspaceFolder}/../picorv32\"",
+  "onCreateCommand": "bash /workspaces/${localWorkspaceFolderBasename}/tests/ci/sponsored-smoke/on-create.sh",
+  "postCreateCommand": "python -m booley.runtime.incontainer_git_identity_cleanup && python -m booley.harness.incontainer_register",
+  "postStartCommand": "python -m booley.runtime.incontainer_git_identity_cleanup && python -m booley.harness.incontainer_register"
+}
