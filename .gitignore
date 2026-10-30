@@ -34,3 +34,14 @@ hooks/validate_commit_msg.py
 # Added by booley init — transient Booley state.
 __pycache__/
 *.pyc
+
+# Added for current Booley — transient state and local evidence.
+/.directory-relocation.json
+mcp-tool-reports/
+reviewer-state/
+/reviewer-evidence/
+/findings.jsonl
+/findings.jsonl.tmp
+/BOOLEY-FEEDBACK.md
+/setup-evidence/
+/PARITY-REPORT.md

@@ -39,6 +39,9 @@ WORKSPACE_MOUNT = "source=${localWorkspaceFolder}/..,target=/workspaces,type=bin
 # Parts of the spec only a Codespace or an attached editor uses. The CLI either
 # ignores them or, for postAttachCommand, would run editor setup with no editor.
 EDITOR_ONLY_KEYS = ("customizations", "postAttachCommand", "secrets", "hostRequirements")
+# The smallest Codespace the spec's hostRequirements allow. CI runners are
+# larger, so cap the container to catch a demo that no longer fits.
+CODESPACE_LIMITS = ["--cpus=2", "--memory=8g"]
 # Agent credentials a Codespace may receive as secrets. The smoke clears them,
 # so a developer's own environment cannot change the agent choice under test.
 CREDENTIAL_ENV = ("ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN", "OPENAI_API_KEY")
@@ -67,22 +70,28 @@ def ci_config(spec: dict[str, object], *, image: str | None = None) -> dict[str,
     for key in EDITOR_ONLY_KEYS:
         config.pop(key, None)
     config["workspaceMount"] = WORKSPACE_MOUNT
+    run_args = config.get("runArgs", [])
+    assert isinstance(run_args, list)
+    config["runArgs"] = [*run_args, *CODESPACE_LIMITS]
     if image:
         config["image"] = image
     return config
 
 
 def _devcontainer(
-    *args: str, timeout: int, capture: bool = False
+    *args: str, timeout: int, capture: bool = False, check: bool = True
 ) -> subprocess.CompletedProcess[str]:
-    """Run the pinned devcontainer CLI; without *capture*, stream output and fail on error."""
+    """Run the pinned devcontainer CLI; stream its output unless *capture* is set.
+
+    With *check*, a nonzero exit raises.
+    """
     _log("$ devcontainer " + " ".join(args))
     environment = {
         name: value for name, value in os.environ.items() if name not in CREDENTIAL_ENV
     }
     return subprocess.run(
         ["npx", "--yes", DEVCONTAINER_CLI, *args],
-        check=not capture,
+        check=check,
         capture_output=capture,
         text=True,
         timeout=timeout,
@@ -108,7 +117,8 @@ def _fresh_sibling_dirs() -> Path:
                 " checkout in an otherwise empty directory"
             )
     for path in (smoke_dir, upstream):
-        shutil.rmtree(path, ignore_errors=True)
+        if path.exists():
+            shutil.rmtree(path)
     smoke_dir.mkdir()
     (smoke_dir / OWNER_MARKER).write_text("created by run_smoke.py\n", encoding="utf-8")
     return smoke_dir
@@ -138,11 +148,14 @@ def run(*, image: str | None, keep: bool) -> int:
     common = ("--workspace-folder", str(REPO_ROOT), "--config", str(config), "--id-label", label)
     try:
         _devcontainer("up", *common, "--remove-existing-container", timeout=UP_TIMEOUT_S)
+        # Output streams live; smoke.sh also keeps each check's log in the
+        # mounted evidence directory, so a timeout still leaves evidence.
         result = _devcontainer(
             "exec", *common, "bash",
             f"/workspaces/{REPO_ROOT.name}/tests/ci/codespaces-smoke/smoke.sh",
             f"{CONTAINER_SMOKE_DIR}/evidence",
-            capture=True,
+            capture=False,
+            check=False,
             timeout=EXEC_TIMEOUT_S,
         )  # fmt: skip
     finally:
@@ -153,9 +166,6 @@ def run(*, image: str | None, keep: bool) -> int:
                 capture_output=True,
                 timeout=DOCKER_TIMEOUT_S,
             )
-    print(result.stdout, end="")
-    print(result.stderr, end="", file=sys.stderr)
-    (evidence / "smoke.txt").write_text(result.stdout, encoding="utf-8")
     if result.returncode != 0:
         _log(f"smoke.sh exited {result.returncode}; evidence in {evidence}")
         return 1

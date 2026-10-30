@@ -57,8 +57,8 @@ terminal:
 booley
 ```
 
-Bare `booley` is the short form of `booley chat`; both open the provider
-selected by `[agent].provider`. Then ask the agent to show how the project,
+Bare `booley` is the short form of `booley chat`; both open the configured
+agent (Claude Code unless you set `[agent].provider`). Then ask the agent to show how the project,
 Targets, and Booley Flows fit together. For example:
 
 > Check the PicoRV32 project status, explain the available Targets, then run a

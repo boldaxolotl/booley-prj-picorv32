@@ -26,22 +26,25 @@ started=$(date +%s)
 # Append a line to a file only when it is not already present (rebuild-safe).
 add_line() { grep -qxF "$2" "$1" 2>/dev/null || printf '%s\n' "$2" >> "$1"; }
 
-if [ ! -d "$PROJECT/.git" ]; then
+# A checkout with a commit is the visitor's (a rebuild): keep it and any edits.
+# Anything less is a first clone that was interrupted, so finish it.
+if head=$(git -C "$PROJECT" rev-parse -q --verify HEAD 2>/dev/null); then
+    stamp "keep existing $PROJECT checkout at ${head:0:7}"
+else
     stamp "clone upstream PicoRV32 $UPSTREAM_REF into $PROJECT"
     mkdir -p "$PROJECT"
     git -C "$PROJECT" init -q
+    git -C "$PROJECT" remote remove origin 2>/dev/null || true
     git -C "$PROJECT" remote add origin "$UPSTREAM_URL"
     git -C "$PROJECT" fetch -q --depth 1 origin "$UPSTREAM_REF"
     git -C "$PROJECT" checkout -q -B main FETCH_HEAD
-else
-    # A rebuild: keep the visitor's checkout and any edits in it.
-    stamp "keep existing $PROJECT checkout at $(git -C "$PROJECT" rev-parse --short HEAD)"
 fi
 
 stamp "link Booley Directory $PROJECT/.booley -> $repo_dir"
 ln -sfn "$repo_dir" "$PROJECT/.booley"
 # Keep Booley's entry, generated core projections and the editor settings out
 # of upstream's git status.
+mkdir -p "$PROJECT/.git/info"
 for pattern in '/.booley' '/.booley-projected-*.core' '/.devcontainer'; do
     add_line "$PROJECT/.git/info/exclude" "$pattern"
 done
@@ -52,7 +55,6 @@ for repo in "$PROJECT" "$repo_dir"; do
     git -C "$repo" config --local core.autocrlf false
     git -C "$repo" config --local worktree.useRelativePaths true
 done
-mkdir -p "$PROJECT/.git/info"
 add_line "$PROJECT/.git/info/attributes" '* text=auto eol=lf'
 mkdir -p "$repo_dir"/tickets/{board,state,logs,locks}
 

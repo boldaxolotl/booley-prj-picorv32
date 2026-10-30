@@ -108,6 +108,7 @@ def test_ci_config_keeps_the_environment_and_drops_editor_parts() -> None:
         "postStartCommand",
     ):
         assert config[key] == spec[key], key
+    assert config["runArgs"][-len(run_smoke.CODESPACE_LIMITS) :] == run_smoke.CODESPACE_LIMITS
     # The spec itself is left untouched.
     assert spec == _spec()
 

@@ -13,6 +13,8 @@ set -uo pipefail
 evidence_dir=${1:?usage: smoke.sh EVIDENCE_DIR}
 project_root=/workspaces/picorv32
 mkdir -p "$evidence_dir"
+# Keep the whole run as evidence too, even when the caller times out.
+exec > >(tee -a "$evidence_dir/smoke.txt") 2>&1
 failures=0
 
 pass() { echo "SMOKE-PASS $1"; }

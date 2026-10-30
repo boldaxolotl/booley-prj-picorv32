@@ -4,6 +4,7 @@
   "remoteUser": "agent",
   "containerUser": "agent",
   "workspaceFolder": "/workspaces/picorv32",
+  "init": true,
   "hostRequirements": {
     "cpus": 2,
     "memory": "8gb",
