@@ -1,5 +1,14 @@
 # PicoRV32 Booley demo
 
+## Try it in your browser
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/boldaxolotl/booley-prj-picorv32?quickstart=1)
+
+One click gives you a running Booley with PicoRV32 in browser VS Code: no
+local install, macOS and Windows included. It uses your own Codespaces quota
+and your own Claude or ChatGPT account. [CODESPACES.md](CODESPACES.md) opens
+automatically and walks you through signing in and the first five minutes.
+
 ## Quick start
 
 This Project revision requires Booley's `.booley/` directory interface (framework issue #1361). For Booley versions using the previous directory interface, use Project commit `9e187ceae6357b47b50bdc835609b4570fd28832` and its [pinned setup instructions](https://github.com/boldaxolotl/booley-prj-picorv32/blob/9e187ceae6357b47b50bdc835609b4570fd28832/README.md). Keep each framework version paired with its matching Project revision; do not update an existing checkout across the directory change before following the framework migration instructions.
@@ -12,8 +21,8 @@ cd picorv32
 git clone https://github.com/boldaxolotl/booley-prj-picorv32 .booley
 ```
 
-The default agent provider is Codex. To use Claude, change `[agent].provider`
-in `.booley/booley.toml` before initialization.
+The default agent provider is Claude Code. To use Codex, add
+`[agent] provider = "codex"` to `.booley/booley.toml` before initialization.
 
 Initialize the project on the host:
 
@@ -46,8 +55,8 @@ terminal:
 booley
 ```
 
-Bare `booley` is the short form of `booley chat`; both open the provider
-selected by `[agent].provider`. Then ask the agent to show how the project,
+Bare `booley` is the short form of `booley chat`; both open the configured
+agent (Claude Code unless you set `[agent].provider`). Then ask the agent to show how the project,
 Targets, and Booley Flows fit together. For example:
 
 > Check the PicoRV32 project status, explain the available Targets, then run a

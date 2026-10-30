@@ -11,3 +11,22 @@ check = "project.memory-image-untracked"
 subject = "dhrystone/dhry.hex"
 reason = "The committed post-setup hook deterministically rebuilds this gitignored image from source in every Session Runtime; vendoring the generated artifact would violate the approved build-on-demand policy."
 expires = 2027-08-06
+
+# GitHub Codespaces (.devcontainer/devcontainer.json). These match only inside
+# the demo Codespace; a local Sandbox never raises them for these subjects.
+
+[[waiver]]
+check = "sandbox.unproxied"
+reason = "GitHub Codespaces demo: the Codespace VM is the visitor's own disposable machine with GitHub-managed network isolation, and there is no booley-proxy to route through. Local Sandboxes keep the proxy."
+expires = 2027-10-30
+
+[[waiver]]
+check = "interactive.devcontainer-drift"
+subject = "/workspaces/picorv32/.devcontainer/devcontainer.json"
+reason = "GitHub Codespaces demo: the hand-written Codespaces spec lives in this repository's .devcontainer/, not in the Project root, and is checked by the Codespaces smoke workflow instead."
+expires = 2027-10-30
+
+[[waiver]]
+check = "sandbox.gitconfig-identity"
+reason = "GitHub Codespaces demo: Codespaces writes the visitor's GitHub identity to /etc/gitconfig. The spec's complete GIT_CONFIG_* override takes precedence, so that identity is only a fallback."
+expires = 2027-10-30
