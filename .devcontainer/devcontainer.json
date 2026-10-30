@@ -1,0 +1,83 @@
+{
+  "name": "Booley PicoRV32 demo",
+  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:candidate-6eec14f0872de3f31a9025077bc069f81feb4b2c-41061509587-1",
+  "remoteUser": "agent",
+  "containerUser": "agent",
+  "workspaceFolder": "/workspaces/picorv32",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Optional. An Anthropic API key for Claude Code. Leave every secret empty to sign in to Claude or Codex from the terminal instead."
+    },
+    "CLAUDE_CODE_OAUTH_TOKEN": {
+      "description": "Optional. A Claude subscription token from `claude setup-token`, used instead of an API key."
+    },
+    "OPENAI_API_KEY": {
+      "description": "Optional. An OpenAI API key for Codex. Used only when no Claude credential is set."
+    }
+  },
+  "containerEnv": {
+    "BOOLEY_EGRESS": "unproxied",
+    "BOOLEY_AGENT_APP": "auto",
+    "BOOLEY_DIR": "/workspaces/picorv32/.booley",
+    "BOOLEY_MCP_MODE": "interactive",
+    "BOOLEY_PRIMARY_AUTH": "auto",
+    "BOOLEY_CREDENTIAL_SCHEMA": "1",
+    "BOOLEY_COMPILER_CACHE_ROOT": "/workspaces/picorv32/.booley/.runtime/compiler-cache/ccache",
+    "PRJ_LIB_DIR": "/home/agent/pdk",
+    "GIT_CONFIG_COUNT": "2",
+    "GIT_CONFIG_KEY_0": "user.name",
+    "GIT_CONFIG_VALUE_0": "Dev",
+    "GIT_CONFIG_KEY_1": "user.email",
+    "GIT_CONFIG_VALUE_1": "dev@localhost"
+  },
+  "remoteEnv": {
+    "BOOLEY_EGRESS": "unproxied",
+    "BOOLEY_AGENT_APP": "auto",
+    "BOOLEY_DIR": "/workspaces/picorv32/.booley",
+    "BOOLEY_MCP_MODE": "interactive",
+    "BOOLEY_PRIMARY_AUTH": "auto",
+    "BOOLEY_CREDENTIAL_SCHEMA": "1",
+    "BOOLEY_COMPILER_CACHE_ROOT": "/workspaces/picorv32/.booley/.runtime/compiler-cache/ccache",
+    "PRJ_LIB_DIR": "/home/agent/pdk",
+    "GIT_CONFIG_COUNT": "2",
+    "GIT_CONFIG_KEY_0": "user.name",
+    "GIT_CONFIG_VALUE_0": "Dev",
+    "GIT_CONFIG_KEY_1": "user.email",
+    "GIT_CONFIG_VALUE_1": "dev@localhost"
+  },
+  "initializeCommand": "mkdir -p \"${localWorkspaceFolder}/../picorv32\" && { chown --reference=\"${localWorkspaceFolder}\" \"${localWorkspaceFolder}/../picorv32\" 2>/dev/null || chmod 0777 \"${localWorkspaceFolder}/../picorv32\"; }",
+  "onCreateCommand": "bash /workspaces/${localWorkspaceFolderBasename}/.devcontainer/on-create.sh",
+  "postCreateCommand": "python -m booley.runtime.incontainer_git_identity_cleanup && python -m booley.harness.incontainer_register",
+  "postStartCommand": "python -m booley.runtime.incontainer_git_identity_cleanup && python -m booley.harness.incontainer_register",
+  "postAttachCommand": "python -m booley.runtime.incontainer_live_preview && python -m booley.runtime.incontainer_vaporview",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "/usr/local/libexec/booley/vaporview-1.6.0.vsix",
+        "mshr-h.veriloghdl",
+        "ms-vscode.live-server",
+        "/usr/local/libexec/booley/dashboard.vsix"
+      ],
+      "settings": {
+        "vaporview.customColor5": "#e5484d",
+        "vaporview.customColor6": "#3b82f6",
+        "vaporview.customColor7": "#2da44e",
+        "remote.restoreForwardedPorts": false,
+        "livePreview.portNumber": 61000,
+        "python-envs.terminal.autoActivationType": "off",
+        "python.terminal.activateEnvironment": false,
+        "booley.dashboard.attachProtocol": 1
+      }
+    },
+    "codespaces": {
+      "openFiles": [
+        "CODESPACES.md"
+      ]
+    }
+  }
+}

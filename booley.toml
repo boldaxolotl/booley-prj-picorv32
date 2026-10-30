@@ -11,11 +11,10 @@ enabled = true
 # root core fails the CAPI2 schema and the bundled targets use the legacy API.
 ignore_native_cores = true
 
-# Select the provider before running `booley init`; see Booley's provider and
-# authentication documentation for alternatives.
-[agent]
-provider = "codex"
-auth = "subscription"
+# No [agent] pin: Booley's default (Claude Code, `auth = "auto"`) applies, so
+# an API key or a CLI login both work. Set `[agent] provider = "codex"` here
+# before `booley init` to use Codex locally. In GitHub Codespaces,
+# BOOLEY_AGENT_APP=auto picks the agent from the visitor's credentials.
 
 [sandbox]
 image = "booley-sandbox-riscv"

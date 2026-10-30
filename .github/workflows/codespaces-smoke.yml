@@ -1,0 +1,59 @@
+name: Codespaces smoke
+
+# Boots the demo's real .devcontainer/devcontainer.json headless on the pinned
+# image, then runs Doctor and the lint, simulation and synthesis Targets. A
+# Booley image or spec change that breaks the Codespaces demo fails here, not
+# on a visitor's first click. See tests/ci/codespaces-smoke/README.md.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly, to notice upstream PicoRV32, PDK or extension drift.
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codespaces-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Spec unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+      - run: pip install pytest==9.1.1
+      - run: python -m pytest -q tests/ci/test_codespaces_spec.py
+
+  smoke:
+    name: Boot and first five minutes
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The runner image's Node and Docker run the devcontainer CLI.
+      - name: Run smoke
+        run: python3 tests/ci/codespaces-smoke/run_smoke.py
+      # upload-artifact rejects '..' in paths, so resolve the sibling dir first.
+      - name: Locate evidence
+        id: smoke
+        if: always()
+        run: echo "dir=$(realpath "$GITHUB_WORKSPACE/../codespaces-smoke")" >> "$GITHUB_OUTPUT"
+      - name: Retain evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: codespaces-smoke-${{ github.run_attempt }}
+          path: ${{ steps.smoke.outputs.dir }}/evidence/
+          if-no-files-found: warn
+          retention-days: 14
