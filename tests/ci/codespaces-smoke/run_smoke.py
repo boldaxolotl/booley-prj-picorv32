@@ -53,6 +53,8 @@ DOCKER_TIMEOUT_S = 120
 # Marks ../codespaces-smoke (and so ../picorv32) as created by this script.
 OWNER_MARKER = ".codespaces-smoke"
 CONTAINER_SMOKE_DIR = "/workspaces/codespaces-smoke"
+# Ignored directories where a booted Booley keeps state in this checkout.
+STATE_DIRS = ("runtime", ".runtime")
 
 
 def _log(message: str) -> None:
@@ -107,6 +109,15 @@ def _fresh_sibling_dirs() -> Path:
     them; without it, refuse rather than touch a directory someone else owns,
     such as a real PicoRV32 clone beside this repo.
     """
+    # An earlier boot leaves ignored Booley state in this checkout. Against a
+    # freshly cloned ../picorv32 it reads as a visitor's choices (for example a
+    # removed Dashboard task), so the run would not test a first start.
+    stale = [name for name in STATE_DIRS if (REPO_ROOT / name).exists()]
+    if stale:
+        raise SystemExit(
+            f"{REPO_ROOT} holds Booley state from an earlier boot ({', '.join(stale)});"
+            " run from a fresh clone"
+        )
     parent = REPO_ROOT.parent
     smoke_dir, upstream = parent / "codespaces-smoke", parent / "picorv32"
     ours = (smoke_dir / OWNER_MARKER).is_file()

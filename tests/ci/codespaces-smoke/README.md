@@ -27,7 +27,8 @@ PicoRV32 Project.
 
 Needs Linux, Docker and Node. The config mounts the checkout's parent
 directory, and the run creates `../codespaces-smoke` and `../picorv32`, so use
-a clone in an otherwise empty directory. Don't run it at the same time as the
+a fresh clone in an otherwise empty directory for each run (a booted
+checkout keeps Booley state that the next run refuses). Don't run it at the same time as the
 sponsored smoke from the same parent directory: both use `../picorv32`.
 
 ```bash
