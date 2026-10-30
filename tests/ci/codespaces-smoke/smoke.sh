@@ -62,6 +62,14 @@ else
     pass agent-choice
 fi
 
+# Claude Code opens without its first-run theme prompt (on-create marks
+# onboarding done), so a visitor goes straight to `claude auth login`.
+if python3 -c 'import json, pathlib, sys; c = json.loads((pathlib.Path.home() / ".claude.json").read_text()); sys.exit(0 if c.get("hasCompletedOnboarding") is True and c.get("theme") else 1)' 2>/dev/null; then
+    pass claude-onboarding
+else
+    fail claude-onboarding "~/.claude.json does not mark onboarding done with a theme"
+fi
+
 # 3. Agent commits use the [agent.git] identity, not one the platform injects.
 ident=$(git -C "$project_root" var GIT_AUTHOR_IDENT 2>&1)
 if [[ $ident == "Dev <dev@localhost> "* ]]; then

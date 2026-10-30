@@ -15,10 +15,19 @@ starts:
 1. A Claude credential (`ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`)
    selects Claude Code.
 2. Otherwise, an `OPENAI_API_KEY` selects Codex.
-3. With neither, Claude Code starts and offers its sign-in.
+3. With neither, Booley uses Claude Code, and you sign in once (below).
 
-**No secret set?** Open a terminal (`` Ctrl+` ``) and run `booley`. Claude Code
-asks you to sign in; follow the link, paste the code, and you're in.
+**No secret set?** Sign in to Claude Code from a terminal (`` Ctrl+` ``):
+
+```bash
+claude auth login
+```
+
+Open the link it prints after "If the browser didn't open, visit:", sign in,
+then copy the code the page shows and paste it at the
+`Paste code here if prompted >` prompt. A tab may also open by itself and fail
+to load a `localhost` address; close it, because the printed link is the one
+that works in a browser Codespace.
 
 **Want to use an API key, or Codex?** Add `ANTHROPIC_API_KEY` or
 `OPENAI_API_KEY` as a [Codespaces secret](https://github.com/settings/codespaces)
