@@ -116,3 +116,14 @@ def test_ci_config_keeps_the_environment_and_drops_editor_parts() -> None:
 def test_ci_config_can_swap_the_image() -> None:
     config = run_smoke.ci_config(_spec(), image="example/image:tag")
     assert config["image"] == "example/image:tag"
+
+
+def test_open_files_resolve_from_the_workspace_folder() -> None:
+    # Codespaces resolves openFiles from workspaceFolder (/workspaces/picorv32),
+    # not from this repository's root, so files here are reached through the
+    # Project's .booley link.
+    open_files = _spec()["customizations"]["codespaces"]["openFiles"]
+    assert open_files
+    for entry in open_files:
+        assert entry.startswith(".booley/"), entry
+        assert (REPO_ROOT / entry.removeprefix(".booley/")).is_file(), entry

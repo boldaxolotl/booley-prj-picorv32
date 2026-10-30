@@ -77,7 +77,7 @@
     },
     "codespaces": {
       "openFiles": [
-        "CODESPACES.md"
+        ".booley/CODESPACES.md"
       ]
     }
   }
