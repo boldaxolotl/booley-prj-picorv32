@@ -6,10 +6,8 @@
 
 One click gives you a running Booley with PicoRV32 in browser VS Code: no
 local install, macOS and Windows included. It uses your own Codespaces quota
-and your own Claude or Codex account. To set an API key as a secret before
-the first start, use [New with options](https://github.com/codespaces/new/boldaxolotl/booley-prj-picorv32).
-[CODESPACES.md](CODESPACES.md) opens automatically and walks you through the
-first five minutes.
+and your own Claude account. [CODESPACES.md](CODESPACES.md) opens
+automatically and walks you through signing in and the first five minutes.
 
 ## Quick start
 

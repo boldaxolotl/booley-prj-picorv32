@@ -14,7 +14,7 @@ One run of the Codespaces CI smoke, the same in CI and on a developer machine
 4. Remove the container.
 
 Exit 0 when every check passed. No credential is used: the container starts
-with none, which is also what a visitor without Codespaces secrets gets.
+with none, as a visitor does before signing in.
 """
 
 from __future__ import annotations
@@ -38,11 +38,11 @@ DEVCONTAINER_CLI = "@devcontainers/cli@0.90.0"
 WORKSPACE_MOUNT = "source=${localWorkspaceFolder}/..,target=/workspaces,type=bind"
 # Parts of the spec only a Codespace or an attached editor uses. The CLI either
 # ignores them or, for postAttachCommand, would run editor setup with no editor.
-EDITOR_ONLY_KEYS = ("customizations", "postAttachCommand", "secrets", "hostRequirements")
+EDITOR_ONLY_KEYS = ("customizations", "postAttachCommand", "hostRequirements")
 # The smallest Codespace the spec's hostRequirements allow. CI runners are
 # larger, so cap the container to catch a demo that no longer fits.
 CODESPACE_LIMITS = ["--cpus=2", "--memory=8g"]
-# Agent credentials a Codespace may receive as secrets. The smoke clears them,
+# Agent credentials BOOLEY_AGENT_APP=auto would pick up. The smoke clears them,
 # so a developer's own environment cannot change the agent choice under test.
 CREDENTIAL_ENV = ("ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN", "OPENAI_API_KEY")
 # Upper bounds for each external step. `up` pulls a multi-GB image, clones

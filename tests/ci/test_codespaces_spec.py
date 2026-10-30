@@ -82,12 +82,6 @@ def test_project_paths_agree_between_spec_and_on_create() -> None:
     assert f"/../{Path(project).name}" in str(spec["initializeCommand"])
 
 
-def test_secrets_offer_every_credential_auto_understands() -> None:
-    secrets = _spec()["secrets"]
-    assert isinstance(secrets, dict)
-    assert set(secrets) == set(run_smoke.CREDENTIAL_ENV)
-
-
 def test_ci_config_keeps_the_environment_and_drops_editor_parts() -> None:
     spec = _spec()
     config = run_smoke.ci_config(spec)

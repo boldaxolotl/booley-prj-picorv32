@@ -7,7 +7,7 @@ five minutes depend on:
 - `run_smoke.py` derives the CI config from the real spec (`ci_config`). It
   keeps the image, users, environment, workspace folder and lifecycle
   commands, and drops what only a Codespace or an attached editor uses
-  (extensions, secrets prompts, host requirements, `postAttachCommand`). It
+  (extensions, host requirements, `postAttachCommand`). It
   mounts the checkout's parent at `/workspaces`, as Codespaces does, then runs
   `devcontainer up`, `smoke.sh`, and teardown.
 - `smoke.sh` runs inside the container: the `/workspaces/picorv32` layout, the

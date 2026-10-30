@@ -2,39 +2,28 @@
 
 This Codespace is a complete Booley setup for [PicoRV32](https://github.com/YosysHQ/picorv32),
 a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
-already installed. All you bring is a Claude or Codex account.
+already installed. All you bring is a Claude account: a Claude subscription
+or an Anthropic Console account.
 
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
-## 1. Connect an agent
+## 1. Sign in to Claude Code
 
-Booley picks the agent from the credentials it finds when the Codespace
-starts:
-
-1. A Claude credential (`ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`)
-   selects Claude Code.
-2. Otherwise, an `OPENAI_API_KEY` selects Codex.
-3. With neither, Booley uses Claude Code, and you sign in once (below).
-
-**No secret set?** Sign in to Claude Code from a terminal (`` Ctrl+` ``):
+Open a terminal (`` Ctrl+` ``) and run:
 
 ```bash
 BROWSER=none claude auth login
 ```
 
 Open the link it prints, sign in, and copy the code the page it lands on
-shows. Paste the whole code at the `Paste code here if prompted >` prompt and press
-Enter. Use each link once: if sign-in fails, run the command again for a fresh
-link. (`BROWSER=none` stops Claude Code from also opening a tab that returns to
-a `localhost` address, which a browser Codespace can't reach.)
+shows. Paste the whole code at the `Paste code here if prompted >` prompt and
+press Enter. Use each link once: if sign-in fails, run the command again for a
+fresh link. (`BROWSER=none` stops Claude Code from also opening a tab that
+returns to a `localhost` address, which a browser Codespace can't reach.)
 
-**Want to use an API key, or Codex?** Add `ANTHROPIC_API_KEY` or
-`OPENAI_API_KEY` as a [Codespaces secret](https://github.com/settings/codespaces)
-for this repository, then rebuild the Codespace: press `F1` and run
-**Codespaces: Rebuild Container**. Your PicoRV32 edits are kept. Codex needs
-the `OPENAI_API_KEY` secret; this demo doesn't support a Codex terminal
-sign-in.
+The sign-in lasts until the Codespace's container is rebuilt; stopping and
+restarting the Codespace keeps it.
 
 ## 2. Check the setup
 
@@ -44,7 +33,7 @@ In the terminal:
 booley doctor
 ```
 
-No check should fail. Until you connect an agent, Doctor warns that it has no
+No check should fail. Until you sign in, Doctor warns that Claude Code has no
 credential. A few Codespaces-specific warnings are waived on purpose;
 `.booley/doctor-waivers.toml` says why.
 
@@ -83,7 +72,7 @@ See the [demo README](README.md#then-try-goal-mode) for how Goal Mode works.
 
 ## Good to know
 
-- This Codespace runs on your own Codespaces quota and your own agent
+- This Codespace runs on your own Codespaces quota and your own Claude
   account. Stop it from [github.com/codespaces](https://github.com/codespaces)
   when you're done.
 - Your PicoRV32 edits live in `/workspaces/picorv32` and survive a rebuild.
