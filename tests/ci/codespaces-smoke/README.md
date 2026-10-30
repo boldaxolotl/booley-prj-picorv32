@@ -13,7 +13,9 @@ five minutes depend on:
 - `smoke.sh` runs inside the container: the `/workspaces/picorv32` layout, the
   `BOOLEY_AGENT_APP=auto` choice with no credential (Claude Code with sign-in
   offered), the agent Git identity, `booley doctor`, `booley targets`, and the
-  `lint_core`, `sim_core` and `synth_core` Targets.
+  `lint_core`, `sim_core` and `synth_core` Targets. Last, it checks the
+  Codex path: a stand-in Codex login plus the registrar switches `booley` to
+  Codex.
 
 No credential is used. The run clears agent credential variables from its own
 environment before booting.

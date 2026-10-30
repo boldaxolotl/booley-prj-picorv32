@@ -112,6 +112,27 @@ check_command lint 600 booley flow lint --target lint_core
 check_command sim 1200 booley flow sim --target sim_core
 check_command synth 1200 booley flow synth --target synth_core
 
+# 6. The Codex path in CODESPACES.md: after `codex login --device-auth`,
+# re-running the registrar switches BOOLEY_AGENT_APP=auto to Codex. A
+# placeholder auth.json stands in for the login; no request is sent.
+codex_auth="$HOME/.codex/auth.json"
+if [[ -e $codex_auth ]]; then
+    fail codex-switch "$codex_auth already exists; refusing to overwrite it"
+else
+    mkdir -p "$(dirname "$codex_auth")"
+    printf '{"tokens":{"access_token":"smoke-placeholder","refresh_token":"smoke-placeholder"}}\n' > "$codex_auth"
+    (cd "$project_root" && python -m booley.harness.incontainer_register) > "$evidence_dir/codex-register.txt" 2>&1
+    launched=$(cd "$project_root" && timeout 60 booley chat -- --version 2>&1)
+    echo "$launched" > "$evidence_dir/codex-chat.txt"
+    if [[ $launched == *"codex-cli "* ]]; then
+        pass codex-switch
+    else
+        fail codex-switch "booley chat did not start Codex after re-registering: $launched"
+    fi
+    rm -f "$codex_auth"
+    (cd "$project_root" && python -m booley.harness.incontainer_register) >> "$evidence_dir/codex-register.txt" 2>&1
+fi
+
 if ((failures)); then
     echo "codespaces smoke: $failures check(s) failed"
     exit 1

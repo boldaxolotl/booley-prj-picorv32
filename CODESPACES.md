@@ -2,13 +2,17 @@
 
 This Codespace is a complete Booley setup for [PicoRV32](https://github.com/YosysHQ/picorv32),
 a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
-already installed. All you bring is a Claude account: a Claude subscription
-or an Anthropic Console account.
+already installed. All you bring is a Claude account (a Claude subscription or
+an Anthropic Console account) or a ChatGPT account for Codex.
 
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
-## 1. Sign in to Claude Code
+## 1. Sign in to your agent
+
+Sign in to **one** agent. If both are signed in, Booley uses Claude Code.
+
+### Claude Code
 
 Open a terminal (`` Ctrl+` ``) and run:
 
@@ -22,7 +26,23 @@ press Enter. Use each link once: if sign-in fails, run the command again for a
 fresh link. (`BROWSER=none` stops Claude Code from also opening a tab that
 returns to a `localhost` address, which a browser Codespace can't reach.)
 
-The sign-in lasts until the Codespace's container is rebuilt; stopping and
+### Codex
+
+Open a terminal (`` Ctrl+` ``) and run:
+
+```bash
+codex login --device-auth
+```
+
+Open the link it prints, sign in with your ChatGPT account, and enter the
+one-time code it shows. Then switch Booley to Codex (it starts with Claude Code
+when nothing is signed in):
+
+```bash
+python -m booley.harness.incontainer_register
+```
+
+Either sign-in lasts until the Codespace's container is rebuilt; stopping and
 restarting the Codespace keeps it.
 
 ## 2. Check the setup
@@ -33,7 +53,7 @@ In the terminal:
 booley doctor
 ```
 
-No check should fail. Until you sign in, Doctor warns that Claude Code has no
+No check should fail. Until you sign in, Doctor warns that the agent has no
 credential. A few Codespaces-specific warnings are waived on purpose;
 `.booley/doctor-waivers.toml` says why.
 
@@ -73,7 +93,7 @@ See the [demo README](README.md#then-try-goal-mode) for how Goal Mode works.
 ## Good to know
 
 - This Codespace runs on your own Codespaces quota and your own Claude
-  account. Stop it from [github.com/codespaces](https://github.com/codespaces)
+  or ChatGPT account. Stop it from [github.com/codespaces](https://github.com/codespaces)
   when you're done.
 - Your PicoRV32 edits live in `/workspaces/picorv32` and survive a rebuild.
 - To run Booley on your own machine instead, see the
