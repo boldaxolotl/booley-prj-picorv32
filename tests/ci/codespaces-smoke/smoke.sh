@@ -62,12 +62,12 @@ else
     pass agent-choice
 fi
 
-# Claude Code opens without its first-run theme prompt (on-create marks
-# onboarding done), so a visitor goes straight to `claude auth login`.
-if python3 -c 'import json, pathlib, sys; c = json.loads((pathlib.Path.home() / ".claude.json").read_text()); sys.exit(0 if c.get("hasCompletedOnboarding") is True and c.get("theme") else 1)' 2>/dev/null; then
+# Claude Code opens without its first-run theme and auto-mode prompts
+# (on-create records both as answered), so a visitor goes straight to `claude auth login`.
+if python3 -c 'import json, pathlib, sys; c = json.loads((pathlib.Path.home() / ".claude.json").read_text()); sys.exit(0 if c.get("hasCompletedOnboarding") is True and c.get("theme") and c.get("hasSeenAutoDefaultNudge") is True else 1)' 2>/dev/null; then
     pass claude-onboarding
 else
-    fail claude-onboarding "~/.claude.json does not mark onboarding done with a theme"
+    fail claude-onboarding "~/.claude.json does not mark onboarding and the auto-mode nudge done"
 fi
 
 # 3. Agent commits use the [agent.git] identity, not one the platform injects.

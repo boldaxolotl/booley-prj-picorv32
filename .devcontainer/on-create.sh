@@ -78,11 +78,13 @@ ensure_guidance_links(project, booley_dir)
 dashboard_tasks.reconcile(project, booley_dir)
 PY
 
-# Claude Code's first run asks for a color theme before anything else; a
-# local Sandbox skips it by copying the host's ~/.claude.json. Mark onboarding
-# done here instead (merged into any existing file, so the Booley MCP entry the
-# registrar adds survives). Sign-in is then `claude auth login`; see CODESPACES.md.
-stamp "skip Claude Code's first-run theme prompt"
+# Claude Code's first run asks for a color theme, and because Booley pins the
+# bypassPermissions default, it then offers to switch the default to auto mode.
+# A local Sandbox skips both by copying the host's ~/.claude.json. Record both
+# as answered here instead (merged into any existing file, so the Booley MCP
+# entry the registrar adds survives). Sign-in is then `claude auth login`;
+# see CODESPACES.md.
+stamp "skip Claude Code's first-run prompts"
 python3 - <<'PY'
 import json
 from pathlib import Path
@@ -91,6 +93,7 @@ path = Path.home() / ".claude.json"
 config = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 config.setdefault("hasCompletedOnboarding", True)
 config.setdefault("theme", "dark")
+config.setdefault("hasSeenAutoDefaultNudge", True)
 path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 PY
 
