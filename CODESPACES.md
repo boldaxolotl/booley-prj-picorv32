@@ -20,14 +20,14 @@ starts:
 **No secret set?** Sign in to Claude Code from a terminal (`` Ctrl+` ``):
 
 ```bash
-claude auth login
+BROWSER=none claude auth login
 ```
 
-Open the link it prints after "If the browser didn't open, visit:", sign in,
-then copy the code the page shows and paste it at the
-`Paste code here if prompted >` prompt. A tab may also open by itself and fail
-to load a `localhost` address; close it, because the printed link is the one
-that works in a browser Codespace.
+Open the link it prints, sign in, and copy the code the page it lands on
+shows. Paste the whole code at the `Paste code here if prompted >` prompt and press
+Enter. Use each link once: if sign-in fails, run the command again for a fresh
+link. (`BROWSER=none` stops Claude Code from also opening a tab that returns to
+a `localhost` address, which a browser Codespace can't reach.)
 
 **Want to use an API key, or Codex?** Add `ANTHROPIC_API_KEY` or
 `OPENAI_API_KEY` as a [Codespaces secret](https://github.com/settings/codespaces)
