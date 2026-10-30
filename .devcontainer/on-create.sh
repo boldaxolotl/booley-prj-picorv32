@@ -58,6 +58,26 @@ done
 add_line "$PROJECT/.git/info/attributes" '* text=auto eol=lf'
 mkdir -p "$repo_dir"/tickets/{board,state,logs,locks}
 
+# Two pieces of Project setup that host-side `booley init` normally writes:
+# the AGENTS.md/CLAUDE.md links agents read on their first chat, and the
+# Dashboard task the editor extension opens on attach. A hand-written
+# Codespaces spec has no host-side init, so apply them here with the same
+# Booley functions. Both are idempotent and leave the checkouts clean.
+# TODO(boldaxolotl/booley#2500): use Booley's supported entry point.
+stamp "write agent guidance links and the Dashboard task"
+python3 - "$PROJECT" <<'PY'
+import sys
+from pathlib import Path
+
+from booley.harness.setup.guidance_links import ensure_guidance_links
+from booley.runtime import dashboard_tasks
+
+project = Path(sys.argv[1])
+booley_dir = project / ".booley"
+ensure_guidance_links(project, booley_dir)
+dashboard_tasks.reconcile(project, booley_dir)
+PY
+
 stamp "build firmware images (post-setup hook)"
 (cd "$PROJECT" && bash .booley/hooks/post-setup.sh)
 

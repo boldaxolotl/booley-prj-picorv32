@@ -12,7 +12,7 @@
   },
   "secrets": {
     "ANTHROPIC_API_KEY": {
-      "description": "Optional. An Anthropic API key for Claude Code. Leave every secret empty to sign in to Claude or Codex from the terminal instead."
+      "description": "Optional. An Anthropic API key for Claude Code. Leave every secret empty to sign in to Claude Code from the terminal instead."
     },
     "CLAUDE_CODE_OAUTH_TOKEN": {
       "description": "Optional. A Claude subscription token from `claude setup-token`, used instead of an API key."

@@ -70,8 +70,35 @@ else
     fail git-identity "author identity is '$ident'"
 fi
 
-# 4. Doctor reports no FAIL, then the Targets a visitor tries first pass.
+# 4. First-start setup a visitor relies on before running Doctor: agents find
+# the Project guidance, and the editor extension may open the Dashboard.
+missing_links=()
+for name in AGENTS.md CLAUDE.md; do
+    [[ "$(readlink -f "$project_root/$name")" == "$(readlink -f "$repo_dir/AGENTS.md")" ]] || missing_links+=("$name")
+done
+if ((${#missing_links[@]})); then
+    fail agent-guidance "not linked to .booley/AGENTS.md: ${missing_links[*]}"
+else
+    pass agent-guidance
+fi
+policy=$(cd "$project_root" && booley dashboard --attach-policy 2>&1)
+if python3 -c 'import json, sys; sys.exit(0 if json.loads(sys.argv[1])["enabled"] else 1)' "$policy" 2>/dev/null; then
+    pass dashboard-task
+else
+    fail dashboard-task "attach policy: $policy"
+fi
+
+# 5. Doctor reports no FAIL, then the Targets a visitor tries first pass.
 check_command doctor 900 booley doctor
+# A visitor should see no warning except the ones signing in clears. CI
+# checkouts also lack a local main branch, which a Codespace on main has.
+expected_warnings='agent\.credential-missing|agent\.rotation-risk|project-data\.destination-branch-missing'
+unexpected=$(grep -E 'WARN  ' "$evidence_dir/doctor.txt" | grep -vE "\[($expected_warnings)[]:]")
+if [[ -n $unexpected ]]; then
+    fail doctor-warnings "unexpected Doctor warnings: $unexpected"
+else
+    pass doctor-warnings
+fi
 check_command targets 300 booley targets
 check_command lint 600 booley flow lint --target lint_core
 check_command sim 1200 booley flow sim --target sim_core

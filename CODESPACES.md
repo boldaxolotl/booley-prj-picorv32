@@ -20,10 +20,12 @@ starts:
 **No secret set?** Open a terminal (`` Ctrl+` ``) and run `booley`. Claude Code
 asks you to sign in; follow the link, paste the code, and you're in.
 
-**Want to use a key, or Codex?** Add it as a
-[Codespaces secret](https://github.com/settings/codespaces) for this
-repository, then rebuild the Codespace: press `F1` and run
-**Codespaces: Rebuild Container**. Your edits are kept.
+**Want to use an API key, or Codex?** Add `ANTHROPIC_API_KEY` or
+`OPENAI_API_KEY` as a [Codespaces secret](https://github.com/settings/codespaces)
+for this repository, then rebuild the Codespace: press `F1` and run
+**Codespaces: Rebuild Container**. Your PicoRV32 edits are kept. Codex needs
+the `OPENAI_API_KEY` secret; this demo doesn't support a Codex terminal
+sign-in.
 
 ## 2. Check the setup
 
@@ -33,7 +35,8 @@ In the terminal:
 booley doctor
 ```
 
-Every check should pass. A few warnings are waived on purpose for Codespaces;
+No check should fail. Until you connect an agent, Doctor warns that it has no
+credential. A few Codespaces-specific warnings are waived on purpose;
 `.booley/doctor-waivers.toml` says why.
 
 ## 3. Ask the agent to run things
