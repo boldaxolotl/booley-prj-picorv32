@@ -111,6 +111,10 @@ check_command targets 300 booley targets
 check_command lint 600 booley flow lint --target lint_core
 check_command sim 1200 booley flow sim --target sim_core
 check_command synth 1200 booley flow synth --target synth_core
+# The Goalsets parse with this image's Booley, and Goal Mode entry accepts the
+# zbb Goals (spec file and synthesis baseline present) in this checkout.
+check_command goalsets 300 env GOALSET_CHECK_REQUIRE_BOOLEY=1 PICORV32_ROOT="$project_root" \
+    python3 -m pytest -q -p no:cacheprovider "$repo_dir/tests/ci/test_goalsets.py"
 
 # 6. The Codex path in CODESPACES.md: after `codex login --device-auth`,
 # re-running the registrar switches BOOLEY_AGENT_APP=auto to Codex. A
