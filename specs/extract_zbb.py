@@ -1,11 +1,13 @@
 """Extract the RV32 Zbb chapter (section 29.4.2 + the 18 RV32 instruction pages)
 from the RISC-V unprivileged ISA manual HTML into compact Markdown.
 
-Usage: python3 -I extract_zbb.py <isa.html> <out.md> <manual-release>
+Usage: python3 -I specs/extract_zbb.py <isa.html> <out.md> <manual-release>
 """
 
 import base64
+import hashlib
 import html
+import itertools
 import re
 import sys
 from html.parser import HTMLParser
@@ -47,14 +49,22 @@ def svg_encoding(svg: str) -> str:
     ys = sorted(rows)
     if len(ys) < 2:
         return "(encoding diagram not decodable)"
-    width = 766.0  # x of bit 0; bit 31 sits at x = 0
+    # WaveDrom layout of this manual's 32-bit diagrams: bit 31 at x = 0, bit 0 at x = 766.
+    width = 766.0
 
-    def bit(x):
+    def bit(x: float) -> int:
         return round(31 - x * 31 / width)
 
     labels = sorted({int(t) for _, t in rows[ys[0]] if t.isdigit()})
-    # Field boundaries come in (lsb, msb) pairs from the index row.
+    # Field boundaries come in (lsb, msb) pairs from the index row. A one-bit
+    # field carries a single label and would shift the later pairs; the pairs
+    # must at least tile bits 0..31. (Two adjacent one-bit fields could still
+    # pair up unnoticed; no RV32 Zbb diagram has a one-bit field.)
     fields = [(labels[i], labels[i + 1]) for i in range(0, len(labels) - 1, 2)]
+    tiles = bool(fields) and fields[0][0] == 0 and fields[-1][1] == 31
+    tiles = tiles and all(nxt[0] == cur[1] + 1 for cur, nxt in itertools.pairwise(fields))
+    if not tiles:
+        raise ValueError(f"encoding diagram fields are not (lsb, msb) pairs over bits 0..31: labels {labels}")
     cells = []
     for lo, hi in sorted(fields, reverse=True):
         content = [(x, t) for x, t in rows[ys[1]] if lo <= bit(x) <= hi]
@@ -76,12 +86,12 @@ def svg_encoding(svg: str) -> str:
 class ToMarkdown(HTMLParser):
     """Very small HTML -> Markdown converter for asciidoctor output."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.out, self.pre, self.cell, self.row = [], False, None, None
         self.first_row = False
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         a = dict(attrs)
         if tag in ("h3", "h4", "h5"):
             self.out.append("\n\n" + "#" * (int(tag[1]) - 1) + " ")
@@ -109,7 +119,7 @@ class ToMarkdown(HTMLParser):
         elif tag == "code" and not self.pre:
             self._emit("`")
 
-    def handle_endtag(self, tag):
+    def handle_endtag(self, tag: str) -> None:
         if tag == "pre":
             self.pre = False
             self.out.append("\n```\n")
@@ -129,16 +139,16 @@ class ToMarkdown(HTMLParser):
         elif tag == "code" and not self.pre:
             self._emit("`")
 
-    def _emit(self, text):
+    def _emit(self, text: str) -> None:
         (self.cell if self.cell is not None else self.out).append(text)
 
-    def handle_data(self, data):
+    def handle_data(self, data: str) -> None:
         if self.pre:
             self.out.append(data)
         else:
             self._emit(re.sub(r"\s+", " ", data))
 
-    def text(self):
+    def text(self) -> str:
         md = "".join(self.out)
         md = re.sub(r"[ \t]+\n", "\n", md)
         # Asciidoctor admonitions are one-row tables with an empty icon cell.
@@ -149,6 +159,8 @@ class ToMarkdown(HTMLParser):
 def section(doc: str, anchor: str) -> str:
     """HTML from heading `anchor` up to the next heading of the same or higher level."""
     m = re.search(rf'<h([34]) id="{re.escape(anchor)}">', doc)
+    if m is None:
+        raise SystemExit(f"section anchor {anchor!r} not found; is this the RISC-V unprivileged ISA manual HTML?")
     level = int(m.group(1))
     end = re.compile(rf"<h[2-{level}] id=")
     nxt = end.search(doc, m.end())
@@ -181,10 +193,10 @@ Scope for this Project: RV32 only. Rows and encodings marked RV64 (`clzw`,
 """
 
 
-def main():
-    import hashlib
-
-    src, dst, release = sys.argv[1], sys.argv[2], sys.argv[3]
+def main() -> None:
+    if len(sys.argv) != 4:
+        raise SystemExit(__doc__)
+    src, dst, release = sys.argv[1:]
     with open(src, "rb") as handle:
         raw = handle.read()
     doc = raw.decode("utf-8")
@@ -195,4 +207,5 @@ def main():
         handle.write("\n".join(parts))
 
 
-main()
+if __name__ == "__main__":
+    main()

@@ -165,8 +165,8 @@ def _booley_goal_api() -> tuple[Any, Any]:
         if required:
             raise
         pytest.skip("Booley is not importable here; the Codespaces smoke runs this check")
-    # Scoped Review Goals (`paths`) postdate the 0.3.0 release; this Project
-    # revision needs a newer Booley, like the pinned Sandbox image's.
+    # Scoped Review Goals (`paths`) postdate the published 0.3.0 package; this
+    # Project needs a later build, like the one in the pinned Sandbox image.
     if "paths" not in ReviewGoalArg.__dataclass_fields__:
         if required:
             pytest.fail("this Booley predates scoped Review Goals; the Goalsets need a newer one")
@@ -190,6 +190,8 @@ def test_zbb_goals_pass_booley_entry_checks() -> None:
     """
     root = os.environ.get("PICORV32_ROOT")
     if not root:
+        if os.environ.get("GOALSET_CHECK_REQUIRE_BOOLEY") == "1":
+            pytest.fail("GOALSET_CHECK_REQUIRE_BOOLEY=1 needs PICORV32_ROOT, the upstream checkout")
         pytest.skip("PICORV32_ROOT is not set; the Codespaces smoke runs this check")
     parse_goal_args, translate_goals = _booley_goal_api()
     from booley.goals.entry import check_goal_targets
