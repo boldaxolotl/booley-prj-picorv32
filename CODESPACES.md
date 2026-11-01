@@ -74,21 +74,46 @@ The agent runs Booley Flows for each request, so the answers come from real
 tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
 Booley Dashboard tab shows runs as they happen.
 
-## 4. Optional: let an agent carry a change
+## 4. Main event: add a RISC-V extension in Goal Mode
 
-Goal Mode hands an agent a change with Goals that only real Flow results can
-meet, such as "add this feature and keep every test passing". Try it with:
+Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
+extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
+PicoRV32. Goal Mode gives the agent Goals that only real tool results can
+meet, and the `zbb` Goalset fixes them in advance:
+
+- the lint, both bus regressions and a new "Zbb disabled" testbench pass;
+- bug, testbench and spec reviews come back clean, the spec review judging
+  the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
+- synthesis grows by at most 11% in cells and 3% in critical path.
+
+Create a separate worktree for the change, so `main` stays untouched:
 
 ```bash
-booley worktree new my-change
+booley worktree new zbb
 ```
 
-Then ask the agent:
+Then start a chat with `booley` and ask:
 
-> Use the booley-goal skill in the my-change worktree to add a small, opt-in
-> PicoRV32 feature and verify its disabled behavior.
+> Use booley-goal in the zbb worktree with the zbb Goalset
 
-See the [demo README](README.md#then-try-goal-mode) for how Goal Mode works.
+The agent lists the eight Goals and asks you to confirm before it starts.
+After that it works on its own: it writes the RTL, firmware test and
+testbench, runs the Flows and reviews, and fixes what they find. Expect
+about half an hour; it uses your Claude or ChatGPT plan's usage.
+
+Follow along while it works:
+
+- `booley goal status`, run in `.booley/worktrees/zbb`, lists each Goal as
+  met or unmet with its latest evidence.
+- The Booley Dashboard tab shows the same Goals and every Flow run live.
+
+When every Goal is met, the agent finishes and gives you the path of the
+**Review Package**: the diff against the starting commit, the evidence
+behind each Goal, the review findings, and the Target changes (such as the
+new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
+again later. The work stays on its own Goal Branch; merging it is your call.
+
+See the [demo README](README.md#then-try-goal-mode) for Goal Mode in general.
 
 ## Good to know
 

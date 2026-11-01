@@ -71,6 +71,12 @@ Goal Mode gives one agent session mandatory Goals that only Booley Flow and
 Specialist evidence can meet. Each session works in its own linked worktree,
 so `main` stays untouched while it runs.
 
+The demo's headline Goal adds the RISC-V Zbb extension to PicoRV32 with the
+`zbb` Goalset: create the worktree with `booley worktree new zbb`, then ask
+the agent to "Use booley-goal in the zbb worktree with the zbb Goalset". Step
+4 of [CODESPACES.md](CODESPACES.md#4-main-event-add-a-risc-v-extension-in-goal-mode)
+walks through it, locally as well as in a Codespace. For a change of your own:
+
 1. In a container terminal, create a worktree for the change:
 
    ```bash
@@ -85,7 +91,7 @@ so `main` stays untouched while it runs.
 
    The agent proposes Goals from the Project's Goalsets in
    `.booley/goalsets/` (`feature`, `bugfix`, `refactor`,
-   `verification`) plus any you ask for, and shows them before entering.
+   `verification`, `zbb`) plus any you ask for, and shows them before entering.
 
 3. The agent runs Booley Flows and Specialists until every Goal has fresh
    evidence. Check progress with `booley goal status` in the worktree or
