@@ -1,0 +1,28 @@
+CAPI=2:
+# Dhrystone simulation Target, kept in its own core so the generated
+# dhrystone/dhry.hex image is not part of the other simulation Targets' inputs.
+name: booley::picorv32-dhry:0
+description: Booley Dhrystone simulation target for PicoRV32
+
+filesets:
+  rtl:
+    files:
+      - picorv32.v: {file_type: verilogSource}
+
+  tb_dhry:
+    files:
+      - dhrystone/testbench.v: {file_type: verilogSource}
+    tags: [tb]
+
+  firmware_dhry:
+    files:
+      - dhrystone/dhry.hex: {file_type: user, copyto: dhry.hex}
+
+targets:
+  # The upstream Dhrystone testbench and image both use RV32IM.
+  sim_dhry:
+    flow: sim
+    flow_options:
+      tool: icarus
+    filesets: [rtl, tb_dhry, firmware_dhry]
+    toplevel: testbench
