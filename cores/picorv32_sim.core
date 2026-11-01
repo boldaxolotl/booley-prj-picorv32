@@ -19,18 +19,9 @@ filesets:
       - testbench_wb.v: {file_type: verilogSource}
     tags: [tb]
 
-  tb_dhry:
-    files:
-      - dhrystone/testbench.v: {file_type: verilogSource}
-    tags: [tb]
-
   firmware:
     files:
       - firmware/firmware.hex: {file_type: user, copyto: firmware/firmware.hex}
-
-  firmware_dhry:
-    files:
-      - dhrystone/dhry.hex: {file_type: user, copyto: dhry.hex}
 
 parameters:
   # The upstream simulation testbenches use this preprocessor switch to set
@@ -57,11 +48,3 @@ targets:
     filesets: [rtl, tb_wb, firmware]
     toplevel: testbench
     parameters: [COMPRESSED_ISA]
-
-  # The upstream Dhrystone testbench and image both use RV32IM.
-  sim_dhry:
-    flow: sim
-    flow_options:
-      tool: icarus
-    filesets: [rtl, tb_dhry, firmware_dhry]
-    toplevel: testbench
