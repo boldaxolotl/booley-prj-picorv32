@@ -157,13 +157,20 @@ def test_main_carries_no_zbb_implementation() -> None:
 
 
 def _booley_goal_api() -> tuple[Any, Any]:
+    required = os.environ.get("GOALSET_CHECK_REQUIRE_BOOLEY") == "1"
     try:
-        from booley.goals.model import parse_goal_args
+        from booley.goals.model import ReviewGoalArg, parse_goal_args
         from booley.goals.translate import translate_goals
     except ImportError:
-        if os.environ.get("GOALSET_CHECK_REQUIRE_BOOLEY") == "1":
+        if required:
             raise
         pytest.skip("Booley is not importable here; the Codespaces smoke runs this check")
+    # Scoped Review Goals (`paths`) postdate the 0.3.0 release; this Project
+    # revision needs a newer Booley, like the pinned Sandbox image's.
+    if "paths" not in ReviewGoalArg.__dataclass_fields__:
+        if required:
+            pytest.fail("this Booley predates scoped Review Goals; the Goalsets need a newer one")
+        pytest.skip("the importable Booley predates scoped Review Goals; the Codespaces smoke runs this check")
     return parse_goal_args, translate_goals
 
 
