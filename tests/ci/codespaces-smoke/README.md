@@ -13,8 +13,7 @@ five minutes depend on:
 - `smoke.sh` runs inside the container: the `/workspaces/picorv32` layout;
   the `BOOLEY_AGENT_APP=auto` choice with no credential (Codex through the
   demo gateway, recorded as `codex|gateway`, before any demo token exists);
-  the first-terminal sign-in hook (`booley-demo-claim` on an interactive
-  shell's `PATH`, no offer used up without a terminal); Claude Code's
+  `booley-demo-claim` on an interactive shell's `PATH`; Claude Code's
   first-run prompts marked done; the agent Git identity; `booley doctor` before the
   demo sign-in (its only allowed FAIL is the missing demo token, see below)
   and with a stand-in demo token (no FAIL, the gateway credential passes),

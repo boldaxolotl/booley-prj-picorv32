@@ -59,8 +59,8 @@ read_choice() {
 
 # 2. Sponsored mode: with no credential of the visitor's own, BOOLEY_AGENT_APP=auto
 # resolves to Codex through the demo gateway. The choice comes from the
-# gateway settings alone: no demo token exists yet (the visitor claims one in
-# the first terminal), and none is needed to choose.
+# gateway settings alone: no demo token exists yet (the visitor claims one with
+# booley-demo-claim), and none is needed to choose.
 if [[ ${BOOLEY_AGENT_APP:-} != auto ]]; then
     fail agent-choice "BOOLEY_AGENT_APP is '${BOOLEY_AGENT_APP:-}', not auto"
 elif ! choice=$(read_choice); then
@@ -71,21 +71,16 @@ else
     pass agent-choice
 fi
 
-# The demo sign-in hook: on-create sources first-terminal.sh from ~/.bashrc.
-# An interactive shell without a terminal (as VS Code starts to read the
-# environment) gets booley-demo-claim on PATH but must not use up the one
-# sign-in offer.
-offered="$HOME/.config/booley-demo/offered"
+# The demo sign-in command: on-create sources shell-path.sh from ~/.bashrc,
+# which puts booley-demo-claim on an interactive shell's PATH.
 claim=$(bash -ic 'command -v booley-demo-claim' < /dev/null 2>&1)
-hook="$repo_dir/.devcontainer/gateway/first-terminal.sh"
+hook="$repo_dir/.devcontainer/gateway/shell-path.sh"
 if ! grep -qxF "[ -f \"$hook\" ] && source \"$hook\"" "$HOME/.bashrc"; then
-    fail first-terminal "~/.bashrc does not source .devcontainer/gateway/first-terminal.sh"
+    fail claim-on-path "~/.bashrc does not source .devcontainer/gateway/shell-path.sh"
 elif [[ $claim != */.devcontainer/gateway/bin/booley-demo-claim ]]; then
-    fail first-terminal "booley-demo-claim is not on an interactive shell's PATH: $claim"
-elif [[ -e $offered ]]; then
-    fail first-terminal "a shell without a terminal used up the sign-in offer ($offered)"
+    fail claim-on-path "booley-demo-claim is not on an interactive shell's PATH: $claim"
 else
-    pass first-terminal
+    pass claim-on-path
 fi
 
 # A visitor who signs in to Claude Code instead opens it without its first-run
