@@ -108,18 +108,13 @@ meet, and the `zbb` Goalset fixes them in advance:
   the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
 - synthesis grows by at most 11% in cells and 3% in critical path.
 
-Create a separate worktree for the change, so `main` stays untouched:
+Start a chat with `booley` and ask:
 
-```bash
-booley worktree new zbb
-```
+> Create a new zbb worktree and use /booley-goal with the zbb Goalset
 
-Then start a chat with `booley` and ask:
-
-> Use booley-goal in the zbb worktree with the zbb Goalset
-
-The agent lists the eight Goals and asks you to confirm before it starts.
-After that it works on its own: it writes the RTL, firmware test and
+The agent creates the worktree first, so `main` stays untouched. Then it
+lists the eight Goals and asks you to confirm before it starts. After that
+it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
 about half an hour; it draws on your demo allowance, or on your own plan's
 usage if you signed in.
