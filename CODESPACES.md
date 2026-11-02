@@ -108,18 +108,17 @@ meet, and the `zbb` Goalset fixes them in advance:
   the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
 - synthesis grows by at most 11% in cells and 3% in critical path.
 
-Create a separate worktree for the change, so `main` stays untouched:
+What to build, and which tests to add, is in the design file
+`.booley/specs/zbb-design.md`.
 
-```bash
-booley worktree new zbb
-```
+Start a chat with `booley` and ask:
 
-Then start a chat with `booley` and ask:
+> Create a new zbb worktree and use /booley-goal with the zbb Goalset to
+> implement the design described in .booley/specs/zbb-design.md
 
-> Use booley-goal in the zbb worktree with the zbb Goalset
-
-The agent lists the eight Goals and asks you to confirm before it starts.
-After that it works on its own: it writes the RTL, firmware test and
+The agent creates the worktree first, so `main` stays untouched. Then it
+lists the eight Goals and asks you to confirm before it starts. After that
+it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
 about half an hour; it draws on your demo allowance, or on your own plan's
 usage if you signed in.
@@ -137,6 +136,30 @@ new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
 again later. The work stays on its own Goal Branch; merging it is your call.
 
 See the [demo README](README.md#then-try-goal-mode) for Goal Mode in general.
+
+## 5. Build whatever you want
+
+The Codespace is yours to experiment in. Some ideas:
+
+- Add another extension, such as Zba, Zbs, or an instruction of your own.
+- Make the core smaller or faster.
+- Strengthen the verification: more tests, coverage, or a stricter
+  testbench.
+- Delete PicoRV32 and build your own design from scratch. The agent updates
+  the Targets in `.booley/cores` to match.
+
+Each idea works like step 4: ask for a new worktree and Goal Mode, and say
+what you want. Pick the Goalset that fits from `.booley/goalsets/`
+(`feature`, `bugfix`, `refactor` or `verification`), or ask for Goals of
+your own. For example:
+
+> Create a new zba worktree and use /booley-goal with the feature Goalset to
+> add the RISC-V Zba extension to PicoRV32
+
+For a bigger change, write the design down in a Markdown file first and
+point the agent at it, as step 4 does. Long runs can use up the demo
+allowance quickly; [sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)
+for more room.
 
 ## Good to know
 
