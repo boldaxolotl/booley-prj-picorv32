@@ -41,7 +41,7 @@ parameters:
     paramtype: vlogdefine
 
 targets:
-  # Verilator, not Icarus: about 10x faster on these testbenches.
+  # Both bus testbenches run on Verilator, not Icarus: about 10x faster.
   sim_core:
     flow: sim
     flow_options:
@@ -64,4 +64,3 @@ targets:
     filesets: [rtl, tb_wb, verilator_main, firmware]
     toplevel: picorv32_wrapper
     parameters: [COMPRESSED_ISA]
-

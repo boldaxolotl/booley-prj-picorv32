@@ -30,4 +30,3 @@ targets:
       verilator_options: [--timing, --trace, -O3, -Wno-fatal, -Wno-lint, -Wno-style]
     filesets: [rtl, tb_dhry, firmware_dhry]
     toplevel: testbench
-

@@ -40,8 +40,9 @@ WORKSPACE_MOUNT = "source=${localWorkspaceFolder}/..,target=/workspaces,type=bin
 # Parts of the spec only a Codespace or an attached editor uses. The CLI either
 # ignores them or, for postAttachCommand, would run editor setup with no editor.
 EDITOR_ONLY_KEYS = ("customizations", "postAttachCommand", "hostRequirements")
-# The smallest Codespace the spec's hostRequirements allow. CI runners are
-# larger, so cap the container to catch a demo that no longer fits.
+# The smallest Codespace the spec's hostRequirements allow. Cap the container
+# to it, so a demo that outgrows the machine fails here (a CI runner may be
+# no bigger, in which case the cap changes nothing).
 CODESPACE_LIMITS = ["--cpus=4", "--memory=16g"]
 # Agent credentials BOOLEY_AGENT_APP=auto would pick up. The smoke clears them,
 # so a developer's own environment cannot change the agent choice under test.

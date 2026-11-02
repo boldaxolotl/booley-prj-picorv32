@@ -18,7 +18,8 @@ five minutes depend on:
   demo sign-in (its only allowed FAIL is the missing demo token, see below)
   and with a stand-in demo token (no FAIL, the gateway credential passes),
   each with no warning but the expected ones; `booley targets`; and the
-  `lint_core`, `sim_core` and `synth_core` Targets. It runs
+  `lint_core`, `sim_core`, `sim_wb`, `sim_dhry` (plus `sim_core` with
+  `--trace`) and `synth_core` Targets. It runs
   `tests/ci/test_goalsets.py` with the image's Booley: every Goalset parses,
   and Goal Mode entry accepts the `zbb` Goals in the checkout. Last, it checks
   the own-account switch: after a stand-in Codex login and a registrar re-run,

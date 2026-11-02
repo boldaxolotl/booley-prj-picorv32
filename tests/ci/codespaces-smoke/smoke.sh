@@ -181,6 +181,11 @@ fi
 check_command targets 300 booley targets
 check_command lint 600 booley flow lint --target lint_core
 check_command sim 1200 booley flow sim --target sim_core
+# The other Verilator Targets: the Wishbone bench shares the copied C++ main,
+# and Dhrystone runs in --timing mode. --trace checks the waveform path.
+check_command sim-wb 1200 booley flow sim --target sim_wb
+check_command sim-dhry 1200 booley flow sim --target sim_dhry
+check_command sim-trace 1200 booley flow sim --target sim_core --trace
 check_command synth 1200 booley flow synth --target synth_core
 # The Goalsets parse with this image's Booley, and Goal Mode entry accepts the
 # zbb Goals (spec file and synthesis baseline present) in this checkout.

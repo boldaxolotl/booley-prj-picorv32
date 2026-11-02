@@ -1,13 +1,19 @@
 // Verilator main for the upstream PicoRV32 testbenches (testbench.v and
 // testbench_wb.v). Upstream hides their `testbench` modules from Verilator,
 // so this file does their job around `picorv32_wrapper`:
-//   - 10 ns clock starting high, reset held for the first 100 rising edges;
+//   - 10 ns clock starting high, counted as a rising edge at time 0 like
+//     Icarus, then reset held for the next 100 rising edges;
 //   - "TIMEOUT" after 1,000,000 rising edges, like the Icarus testbench;
 //   - a VCD at testbench.vcd when Booley asks for a trace (+trace) or when
-//     upstream's +vcd switch is given.
+//     upstream's +vcd switch is given. (Upstream's +trace writes an
+//     instruction trace instead; Booley's sim Flow passes +trace for waves.)
 // Build with -CFLAGS -DPICORV32_WB_TB for testbench_wb.v, whose wrapper has
 // wb_clk and an active-high wb_rst instead of clk and resetn.
+//
+// The sim Targets build a copy: .booley/hooks/post-setup.sh copies this file
+// to testbench_verilator_main.cc in the checkout. Rerun the hook after edits.
 #include <cstdio>
+#include <cstring>
 #include <memory>
 
 #include "Vpicorv32_wrapper.h"
@@ -20,9 +26,13 @@ constexpr int kResetEdges = 100;        // rising edges held in reset
 constexpr long kTimeoutEdges = 1000000; // rising edges before TIMEOUT
 constexpr int kHalfPeriodNs = 5;
 
-bool has_plusarg(const char* name) {
-    const char* match = Verilated::commandArgsPlusMatch(name);
-    return match && match[0] == '+';
+// True when `arg` (such as "+trace") is on the command line exactly, so
+// "+tracefile=..." does not count.
+bool has_exact_arg(int argc, char** argv, const char* arg) {
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], arg) == 0) return true;
+    }
+    return false;
 }
 
 void set_clock(Vpicorv32_wrapper& top, bool level) {
@@ -49,7 +59,7 @@ int main(int argc, char** argv) {
     const auto top = std::make_unique<Vpicorv32_wrapper>(context.get());
 
     std::unique_ptr<VerilatedVcdC> vcd;
-    if (has_plusarg("trace") || has_plusarg("vcd")) {
+    if (has_exact_arg(argc, argv, "+trace") || has_exact_arg(argc, argv, "+vcd")) {
         context->traceEverOn(true);
         vcd = std::make_unique<VerilatedVcdC>();
         top->trace(vcd.get(), 99);

@@ -5,9 +5,10 @@
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/boldaxolotl/booley-prj-picorv32?quickstart=1)
 
 One click gives you a running Booley with PicoRV32 in browser VS Code: no
-local install, macOS and Windows included. It's free: the Codespace fits in
-GitHub's free monthly Codespaces allowance, and the agent runs GPT-6 Luna on
-the Booley maintainer's account after a GitHub sign-in. You can use your own
+local install, macOS and Windows included. It's free: the 4-core Codespace
+runs on your own GitHub account's free monthly Codespaces quota (about 30
+hours a month on a free account), and the agent runs GPT-6 Luna on the Booley
+maintainer's account after a GitHub sign-in. You can use your own
 Claude or ChatGPT account instead. The first launch takes 3-4 minutes while
 the container image builds. [CODESPACES.md](CODESPACES.md) opens automatically
 and walks you through signing in and the first five minutes.
