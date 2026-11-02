@@ -134,9 +134,9 @@ pipelined. See how far you can push the models, the design, and Booley itself.
 
 | Target | Flow | Top | Configuration |
 |---|---|---|---|
-| `sim_core` | Icarus simulation | `testbench` | RV32IMC; `main` and randomized AXI tests |
-| `sim_wb` | Icarus simulation | `testbench` | RV32IMC Wishbone regression |
-| `sim_dhry` | Icarus simulation | `testbench` | RV32IM Dhrystone benchmark |
+| `sim_core` | Verilator simulation | `picorv32_wrapper` | RV32IMC; `main` and randomized AXI tests |
+| `sim_wb` | Verilator simulation | `picorv32_wrapper` | RV32IMC Wishbone regression |
+| `sim_dhry` | Verilator simulation | `testbench` | RV32IM Dhrystone benchmark |
 | `lint_core` | Verilator lint | `picorv32_axi` | RV32IMC wrapper |
 | `synth_core` | Yosys + OpenROAD synthesis | `picorv32` | RV32IMC, 10 ns SDC |
 | `fpga_core` | Vivado implementation | `picorv32_axi` | RV32IMC, Kintex-7 `xc7k70t-fbg676`, 10 ns XDC, out of context |

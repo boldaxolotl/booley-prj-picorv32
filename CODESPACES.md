@@ -5,6 +5,12 @@ a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
 already installed, and the agent is free: it runs OpenAI's GPT-6 Luna on the
 Booley maintainer's account. You only need a GitHub account.
 
+The Codespace itself runs on your GitHub account's Codespaces quota. A free
+account gets 120 core-hours and 15 GB of storage a month; this Codespace uses
+4 cores, so that's about 30 hours of running time. GitHub Pro gets 180
+core-hours (about 45 hours). See
+[GitHub's Codespaces billing](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces).
+
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
@@ -20,15 +26,13 @@ Open a new terminal (`` Ctrl+Shift+` ``) and run:
 booley-demo-claim
 ```
 
-It shows the demo notice: what the gateway logs (usage numbers, never your
-prompts or code), who can use it, and the usage rules.
-Type `yes` to agree. Then open the GitHub link it prints, enter the code, and
-let the "Booley demo" app read your public profile. Your GitHub account must
-be at least 30 days old. The terminal says when your token is saved. Said no,
-or the sign-in failed? Run it again.
+Follow its prompts. Your GitHub account must be at least 30 days old. If it
+fails, run it again.
 
-Each GitHub account gets $1 of demo usage per month. A token lasts 30 days,
-and one GitHub account can hold 3 at a time.
+Each GitHub account gets $1 of demo usage per month. GPT-6 Luna is cheap, so
+that's about 1.5 hours of the agent working nonstop, or four runs of the
+step 4 Goal (about $0.22 each). Normal back-and-forth use lasts longer. A
+token lasts 30 days, and one GitHub account can hold 3 at a time.
 
 ### Or use your own Claude or ChatGPT account
 
@@ -85,7 +89,7 @@ Start a chat with `booley` and try these, one at a time:
 
 > Check the project status and explain the available Targets.
 
-> Run the sim_core simulation and tell me whether it passed.
+> Run the sim_core simulation.
 
 > Open the sim_core waveform and show me the first few instruction fetches
 > on the memory interface.
@@ -120,7 +124,7 @@ The agent creates the worktree first, so `main` stays untouched. Then it
 lists the eight Goals and asks you to confirm before it starts. After that
 it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
-about half an hour; it draws on your demo allowance, or on your own plan's
+about 20 minutes; it draws on your demo allowance, or on your own plan's
 usage if you signed in.
 
 Follow along while it works:
@@ -163,10 +167,9 @@ for more room.
 
 ## Good to know
 
-- The Codespace runs on your GitHub account's free monthly Codespaces
-  allowance. Stop it from [github.com/codespaces](https://github.com/codespaces)
-  when you're done. A stopped Codespace still uses storage; delete it when you
-  no longer need it.
+- A running Codespace uses your quota (see the top of this page). Stop it from
+  [github.com/codespaces](https://github.com/codespaces) when you're done. A
+  stopped Codespace still uses storage; delete it when you no longer need it.
 - The demo token's allowance resets each month. Rebuilding the container
   deletes the token; run `booley-demo-claim` to get a new one.
 - Your PicoRV32 edits live in `/workspaces/picorv32` and survive a rebuild.

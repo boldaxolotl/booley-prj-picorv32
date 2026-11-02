@@ -19,6 +19,15 @@ filesets:
       - testbench_wb.v: {file_type: verilogSource}
     tags: [tb]
 
+  # Upstream hides its `testbench` modules from Verilator. This main does
+  # their job around picorv32_wrapper: clock, reset, timeout and waveforms.
+  # The post-setup hook copies it from .booley/sim/ into the checkout, and
+  # upstream's .gitignore already ignores the name.
+  verilator_main:
+    files:
+      - testbench_verilator_main.cc: {file_type: cppSource}
+    tags: [tb]
+
   firmware:
     files:
       - firmware/firmware.hex: {file_type: user, copyto: firmware/firmware.hex}
@@ -32,19 +41,27 @@ parameters:
     paramtype: vlogdefine
 
 targets:
+  # Verilator, not Icarus: about 10x faster on these testbenches.
   sim_core:
     flow: sim
     flow_options:
-      tool: icarus
+      tool: verilator
+      mode: cc
+      verilator_options: [--exe, --trace, -O3, -Wno-fatal, -Wno-lint, -Wno-style]
       booley: {doctor: [sim]}
-    filesets: [rtl, tb_main, firmware]
-    toplevel: testbench
+    filesets: [rtl, tb_main, verilator_main, firmware]
+    toplevel: picorv32_wrapper
     parameters: [COMPRESSED_ISA]
 
   sim_wb:
     flow: sim
     flow_options:
-      tool: icarus
-    filesets: [rtl, tb_wb, firmware]
-    toplevel: testbench
+      tool: verilator
+      mode: cc
+      # testbench_wb.v's wrapper has wb_clk and an active-high wb_rst.
+      verilator_options: [--exe, --trace, -O3, -Wno-fatal, -Wno-lint, -Wno-style,
+                          -CFLAGS, -DPICORV32_WB_TB]
+    filesets: [rtl, tb_wb, verilator_main, firmware]
+    toplevel: picorv32_wrapper
     parameters: [COMPRESSED_ISA]
+

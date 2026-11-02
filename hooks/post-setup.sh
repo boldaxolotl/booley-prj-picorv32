@@ -14,6 +14,12 @@ if ! grep -qxF '/picosoc/FUSESOC_IGNORE' "$exclude_file" 2>/dev/null; then
     printf '%s\n' '/picosoc/FUSESOC_IGNORE' >> "$exclude_file"
 fi
 
+# The Verilator sim Targets build this main with upstream's testbenches. Sim
+# sources must sit inside the checkout, and upstream's .gitignore already
+# ignores /testbench_verilator*, so the copy stays out of git status.
+hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cp "$hook_dir/../sim/verilator_main.cc" testbench_verilator_main.cc
+
 # The upstream build produces the RV32IMC image used by sim_core and sim_wb.
 make firmware/firmware.hex TOOLCHAIN_PREFIX=riscv32-unknown-elf-
 

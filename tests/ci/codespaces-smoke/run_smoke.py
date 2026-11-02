@@ -42,7 +42,7 @@ WORKSPACE_MOUNT = "source=${localWorkspaceFolder}/..,target=/workspaces,type=bin
 EDITOR_ONLY_KEYS = ("customizations", "postAttachCommand", "hostRequirements")
 # The smallest Codespace the spec's hostRequirements allow. CI runners are
 # larger, so cap the container to catch a demo that no longer fits.
-CODESPACE_LIMITS = ["--cpus=2", "--memory=8g"]
+CODESPACE_LIMITS = ["--cpus=4", "--memory=16g"]
 # Agent credentials BOOLEY_AGENT_APP=auto would pick up. The smoke clears them,
 # so a developer's own environment cannot change the agent choice under test.
 CREDENTIAL_ENV = ("ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN", "OPENAI_API_KEY")
