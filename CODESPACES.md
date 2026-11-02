@@ -27,9 +27,7 @@ let the "Booley demo" app read your public profile. Your GitHub account must
 be at least 30 days old. The terminal says when your token is saved. Said no,
 or the sign-in failed? Run it again.
 
-Each GitHub account gets $0.50 of demo usage per month, plenty for steps 2
-and 3. The Zbb Goal in step 4 is a much bigger job and may use it all up; if
-the allowance runs out, use your own account instead. A token lasts 30 days,
+Each GitHub account gets $1 of demo usage per month. A token lasts 30 days,
 and one GitHub account can hold 3 at a time.
 
 ### Or use your own Claude or ChatGPT account
