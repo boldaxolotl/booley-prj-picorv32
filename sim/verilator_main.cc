@@ -9,9 +9,6 @@
 //     instruction trace instead; Booley's sim Flow passes +trace for waves.)
 // Build with -CFLAGS -DPICORV32_WB_TB for testbench_wb.v, whose wrapper has
 // wb_clk and an active-high wb_rst instead of clk and resetn.
-//
-// The sim Targets build a copy: .booley/hooks/post-setup.sh copies this file
-// to testbench_verilator_main.cc in the checkout. Rerun the hook after edits.
 #include <cstdio>
 #include <cstring>
 #include <memory>

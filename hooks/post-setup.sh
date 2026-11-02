@@ -2,9 +2,6 @@
 # Recreate generated inputs in a fresh checkout or linked worktree.
 set -euo pipefail
 
-# Resolve this hook's own directory before changing directory, so a relative
-# hook path still finds .booley/sim/ next to it.
-hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 project_root="${BOOLEY_WORKTREE:-$(git rev-parse --show-toplevel)}"
 cd "$project_root"
 
@@ -16,11 +13,6 @@ mkdir -p "$(dirname "$exclude_file")"
 if ! grep -qxF '/picosoc/FUSESOC_IGNORE' "$exclude_file" 2>/dev/null; then
     printf '%s\n' '/picosoc/FUSESOC_IGNORE' >> "$exclude_file"
 fi
-
-# The Verilator sim Targets build this main with upstream's testbenches. Sim
-# sources must sit inside the checkout, and upstream's .gitignore already
-# ignores /testbench_verilator*, so the copy stays out of git status.
-cp "$hook_dir/../sim/verilator_main.cc" testbench_verilator_main.cc
 
 # The upstream build produces the RV32IMC image used by sim_core and sim_wb.
 make firmware/firmware.hex TOOLCHAIN_PREFIX=riscv32-unknown-elf-

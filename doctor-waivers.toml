@@ -2,8 +2,8 @@ version = 1
 
 [[waiver]]
 check = "project.core-file-untracked"
-subject = "dhrystone/dhry.hex,firmware/firmware.hex,testbench_verilator_main.cc"
-reason = "The committed post-setup hook deterministically rebuilds both gitignored images from source and copies the gitignored Verilator main from .booley/sim/ in every Session Runtime; vendoring generated firmware would create stale duplicate build outputs."
+subject = "dhrystone/dhry.hex,firmware/firmware.hex"
+reason = "The committed post-setup hook deterministically rebuilds both gitignored images from source in every Session Runtime; vendoring generated firmware would create stale duplicate build outputs."
 expires = 2027-08-06
 
 [[waiver]]
