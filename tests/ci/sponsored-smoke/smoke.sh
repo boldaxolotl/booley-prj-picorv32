@@ -64,18 +64,21 @@ fi
 # 3. Doctor: exit 0 (no FAIL) and no agent.* WARN. Its gateway credential
 # PASS is checked separately (doctor-gateway), so the negative run can show
 # that Doctor itself noticed the missing gateway.
+# Doctor's closing Summary table lists every FAIL and WARN on one line each
+# ("  ✗ fail   <message>  <check-id>", "  ! warn   ..."), even when the check
+# row above it wraps; a check row starts with its glyph ("  ✓  <message>").
 doctor_log="$evidence_dir/doctor.txt"
 (cd "$project_root" && timeout 900 booley doctor) > "$doctor_log" 2>&1
 doctor_status=$?
 cat "$doctor_log"
 if ((doctor_status != 0)); then
-    fail doctor "booley doctor exited $doctor_status (FAIL lines: $(grep -c 'FAIL  ' "$doctor_log"))"
-elif grep -E 'WARN  .*\[agent\.' "$doctor_log"; then
+    fail doctor "booley doctor exited $doctor_status (FAIL rows: $(grep -c '^  ✗ fail ' "$doctor_log"))"
+elif grep -E '^  ! warn .*  agent\.' "$doctor_log"; then
     fail doctor "agent credential WARN present"
 else
     pass doctor
 fi
-if grep -q 'PASS  Codex auth: the gateway at ' "$doctor_log"; then
+if grep -q '^  ✓  Codex auth: the gateway at ' "$doctor_log"; then
     pass doctor-gateway
 else
     fail doctor-gateway "no gateway credential PASS line"

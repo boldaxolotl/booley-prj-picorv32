@@ -123,11 +123,11 @@ fi
 #
 # Before the claim: Doctor runs the gateway token command fresh, and with no
 # token yet it grades the gateway credential (check id agent.credential-missing).
-# The pinned Booley FAILs it (FAIL lines print no id, so the smoke matches the
-# message); newer Booley warns instead (the warning allowlist below names the
-# id). CODESPACES.md tells visitors the check fails until they have a token.
+# The pinned Booley warns about it (the warning allowlist below names the id).
 # The smoke accepts that one finding, requires a finished Doctor run, and
-# fails on anything else.
+# fails on anything else. It reads Doctor's closing Summary: one line per FAIL
+# or WARN ("  ✗ fail   <message>  <check-id>", "  ! warn   ..."; IDs longer
+# than 48 characters end in "…") and the counts ("  ✓ passed     73").
 check_doctor() {
     local name=$1 log="$evidence_dir/$1.txt"
     (cd "$project_root" && timeout 900 booley doctor) > "$log" 2>&1
@@ -137,8 +137,8 @@ check_doctor() {
 }
 check_doctor doctor-before-claim
 before_status=$?
-other_fails=$(grep -E 'FAIL  ' "$evidence_dir/doctor-before-claim.txt" | grep -vF 'FAIL  BOOLEY_GATEWAY_TOKEN_COMMAND exited 1')
-if (( before_status > 1 )) || ! grep -qE '[0-9]+ passed,' "$evidence_dir/doctor-before-claim.txt"; then
+other_fails=$(grep -E '^  ✗ fail ' "$evidence_dir/doctor-before-claim.txt")
+if (( before_status > 1 )) || ! grep -qE '^  ✓ passed +[0-9]+$' "$evidence_dir/doctor-before-claim.txt"; then
     fail doctor-before-claim "'booley doctor' did not finish (exit $before_status, no summary line)"
 elif [[ -n $other_fails ]]; then
     fail doctor-before-claim "Doctor FAILs other than the missing demo token: $other_fails"
@@ -161,7 +161,7 @@ else
     after_status=$?
     if (( after_status != 0 )); then
         fail doctor "'booley doctor' with a demo token exited $after_status"
-    elif ! grep -q 'PASS  Codex auth: the gateway at ' "$evidence_dir/doctor.txt"; then
+    elif ! grep -q '^  ✓  Codex auth: the gateway at ' "$evidence_dir/doctor.txt"; then
         fail doctor "no PASS line for the gateway credential"
     else
         pass doctor
@@ -172,7 +172,7 @@ fi
 # branch; a CI checkout of a pull request does not. agent.credential-missing is
 # the missing demo token in newer Booley (the "after" run must PASS it above).
 expected_warnings='project-data\.destination-branch-missing|agent\.credential-missing'
-unexpected=$(grep -hE 'WARN  ' "$evidence_dir/doctor-before-claim.txt" "$evidence_dir/doctor.txt" | grep -vE "\[($expected_warnings)[]:]")
+unexpected=$(grep -hE '^  ! warn ' "$evidence_dir/doctor-before-claim.txt" "$evidence_dir/doctor.txt" | grep -vE "  ($expected_warnings)(:|…|$)")
 if [[ -n $unexpected ]]; then
     fail doctor-warnings "unexpected Doctor warnings: $unexpected"
 else
