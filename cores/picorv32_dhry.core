@@ -19,10 +19,14 @@ filesets:
       - dhrystone/dhry.hex: {file_type: user, copyto: dhry.hex}
 
 targets:
-  # The upstream Dhrystone testbench and image both use RV32IM.
+  # The upstream Dhrystone testbench and image both use RV32IM. It has no
+  # Verilator top, so Verilator's --timing mode runs it as written. It always
+  # dumps testbench.vcd, hence --trace.
   sim_dhry:
     flow: sim
     flow_options:
-      tool: icarus
+      tool: verilator
+      mode: binary
+      verilator_options: [--timing, --trace, -O3, -Wno-fatal, -Wno-lint, -Wno-style]
     filesets: [rtl, tb_dhry, firmware_dhry]
     toplevel: testbench

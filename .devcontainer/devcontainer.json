@@ -6,8 +6,8 @@
   "workspaceFolder": "/workspaces/picorv32",
   "init": true,
   "hostRequirements": {
-    "cpus": 2,
-    "memory": "8gb",
+    "cpus": 4,
+    "memory": "16gb",
     "storage": "32gb"
   },
   "containerEnv": {
@@ -67,7 +67,10 @@
         "livePreview.portNumber": 61000,
         "python-envs.terminal.autoActivationType": "off",
         "python.terminal.activateEnvironment": false,
-        "booley.dashboard.attachProtocol": 1
+        "booley.dashboard.attachProtocol": 1,
+        "workbench.editorAssociations": {
+          "**/CODESPACES.md": "vscode.markdown.preview.editor"
+        }
       }
     },
     "codespaces": {
