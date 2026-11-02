@@ -14,32 +14,29 @@ waveform viewer.
 
 ## 1. Get your free demo token
 
-The first terminal you open (`` Ctrl+` ``) shows the demo notice: what the
-gateway logs (usage numbers, never your prompts or code), who can use it, and
-the usage rules.
-Type `yes` to agree. Then open the GitHub link it prints, enter the code, and
-let the "Booley demo" app read your public profile. Your GitHub account must
-be at least 30 days old. The terminal says when your token is saved.
-
-Closed that terminal, or said no? Open a new one and run:
+Open a new terminal (`` Ctrl+Shift+` ``) and run:
 
 ```bash
 booley-demo-claim
 ```
 
-Each GitHub account gets $0.50 of demo usage per month, plenty for steps 2
-and 3. The Zbb Goal in step 4 is a much bigger job and may use it all up; if
-the allowance runs out, use your own account instead. A token lasts 30 days,
+It shows the demo notice: what the gateway logs (usage numbers, never your
+prompts or code), who can use it, and the usage rules.
+Type `yes` to agree. Then open the GitHub link it prints, enter the code, and
+let the "Booley demo" app read your public profile. Your GitHub account must
+be at least 30 days old. The terminal says when your token is saved. Said no,
+or the sign-in failed? Run it again.
+
+Each GitHub account gets $1 of demo usage per month. A token lasts 30 days,
 and one GitHub account can hold 3 at a time.
 
 ### Or use your own Claude or ChatGPT account
 
 Your own account gets you a stronger model, within your own plan's limits
-instead of the demo allowance. Booley uses it instead of the demo token. When
-the first terminal shows the demo notice, answer anything but `yes` to skip
-it, then sign in:
+instead of the demo allowance. Booley uses it instead of the demo token, so
+skip `booley-demo-claim` and sign in:
 
-**Claude Code.** Open a terminal (`` Ctrl+` ``) and run:
+**Claude Code.** Open a new terminal (`` Ctrl+Shift+` ``) and run:
 
 ```bash
 BROWSER=none claude auth login
