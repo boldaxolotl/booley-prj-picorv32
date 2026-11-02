@@ -131,10 +131,18 @@ def test_environment_ships_a_complete_gateway_config() -> None:
     env = spec["containerEnv"]
     assert isinstance(env, dict)
     # Booley reads the same settings from either block (see the remoteEnv test).
-    for key in ("BOOLEY_GATEWAY_URL", "BOOLEY_GATEWAY_TOKEN_COMMAND", "BOOLEY_GATEWAY_MODEL"):
+    for key in (
+        "BOOLEY_GATEWAY_URL",
+        "BOOLEY_GATEWAY_TOKEN_COMMAND",
+        "BOOLEY_GATEWAY_MODEL",
+        "BOOLEY_GATEWAY_EFFORT",
+    ):
         assert spec["remoteEnv"][key] == env[key], key
     assert env["BOOLEY_GATEWAY_URL"].startswith("https://")
     assert env["BOOLEY_GATEWAY_MODEL"]
+    # Chosen by the quality gate (boldaxolotl/booley#2274); Codex's own default
+    # would apply if this were unset.
+    assert env["BOOLEY_GATEWAY_EFFORT"] == "medium"
     prefix = "/workspaces/${localWorkspaceFolderBasename}/"
     command = env["BOOLEY_GATEWAY_TOKEN_COMMAND"]
     assert command.startswith(prefix), command
