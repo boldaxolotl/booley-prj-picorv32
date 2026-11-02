@@ -8,6 +8,10 @@ an Anthropic Console account) or a ChatGPT account for Codex.
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
+When VS Code asks **Do you trust the authors of the files in this folder?**,
+click **Trust Folder & Continue**. That turns on the Booley Dashboard and the
+waveform viewer.
+
 ## 1. Sign in to your agent
 
 Sign in to **one** agent. If both are signed in, Booley uses Claude Code.
