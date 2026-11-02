@@ -137,6 +137,30 @@ again later. The work stays on its own Goal Branch; merging it is your call.
 
 See the [demo README](README.md#then-try-goal-mode) for Goal Mode in general.
 
+## 5. Build whatever you want
+
+The Codespace is yours to experiment in. Some ideas:
+
+- Add another extension, such as Zba, Zbs, or an instruction of your own.
+- Make the core smaller or faster.
+- Strengthen the verification: more tests, coverage, or a stricter
+  testbench.
+- Delete PicoRV32 and build your own design from scratch. The agent updates
+  the Targets in `.booley/cores` to match.
+
+Each idea works like step 4: ask for a new worktree and Goal Mode, and say
+what you want. Pick the Goalset that fits from `.booley/goalsets/`
+(`feature`, `bugfix`, `refactor` or `verification`), or ask for Goals of
+your own. For example:
+
+> Create a new zba worktree and use /booley-goal with the feature Goalset to
+> add the RISC-V Zba extension to PicoRV32
+
+For a bigger change, write the design down in a Markdown file first and
+point the agent at it, as step 4 does. Long runs can use up the demo
+allowance quickly; [sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)
+for more room.
+
 ## Good to know
 
 - The Codespace runs on your GitHub account's free monthly Codespaces
