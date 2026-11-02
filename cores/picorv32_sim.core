@@ -21,11 +21,9 @@ filesets:
 
   # Upstream hides its `testbench` modules from Verilator. This main does
   # their job around picorv32_wrapper: clock, reset, timeout and waveforms.
-  # The post-setup hook copies it from .booley/sim/ into the checkout, and
-  # upstream's .gitignore already ignores the name.
   verilator_main:
     files:
-      - testbench_verilator_main.cc: {file_type: cppSource}
+      - .booley/sim/verilator_main.cc: {file_type: cppSource}
     tags: [tb]
 
   firmware:
