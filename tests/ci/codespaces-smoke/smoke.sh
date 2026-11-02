@@ -77,7 +77,8 @@ fi
 # sign-in offer.
 offered="$HOME/.config/booley-demo/offered"
 claim=$(bash -ic 'command -v booley-demo-claim' < /dev/null 2>&1)
-if ! grep -qxF "source $repo_dir/.devcontainer/gateway/first-terminal.sh" "$HOME/.bashrc"; then
+hook="$repo_dir/.devcontainer/gateway/first-terminal.sh"
+if ! grep -qxF "[ -f \"$hook\" ] && source \"$hook\"" "$HOME/.bashrc"; then
     fail first-terminal "~/.bashrc does not source .devcontainer/gateway/first-terminal.sh"
 elif [[ $claim != */.devcontainer/gateway/bin/booley-demo-claim ]]; then
     fail first-terminal "booley-demo-claim is not on an interactive shell's PATH: $claim"
@@ -126,11 +127,12 @@ fi
 # tries first.
 #
 # Before the claim: Doctor runs the gateway token command fresh, and with no
-# token yet it FAILs the gateway credential (check id agent.credential-missing;
-# the text output prints no id on FAIL lines). That is Booley's current
-# behavior although CODESPACES.md promises no FAIL before sign-in, so the smoke
-# accepts exactly that one FAIL (or none, should Booley downgrade it) and
-# nothing else.
+# token yet it grades the gateway credential (check id agent.credential-missing).
+# The pinned Booley FAILs it (FAIL lines print no id, so the smoke matches the
+# message); newer Booley warns instead (the warning allowlist below names the
+# id). CODESPACES.md tells visitors the check fails until they have a token.
+# The smoke accepts that one finding, requires a finished Doctor run, and
+# fails on anything else.
 check_doctor() {
     local name=$1 log="$evidence_dir/$1.txt"
     (cd "$project_root" && timeout 900 booley doctor) > "$log" 2>&1
@@ -139,8 +141,11 @@ check_doctor() {
     return $status
 }
 check_doctor doctor-before-claim
+before_status=$?
 other_fails=$(grep -E 'FAIL  ' "$evidence_dir/doctor-before-claim.txt" | grep -vF 'FAIL  BOOLEY_GATEWAY_TOKEN_COMMAND exited 1')
-if [[ -n $other_fails ]]; then
+if (( before_status > 1 )) || ! grep -qE '[0-9]+ passed,' "$evidence_dir/doctor-before-claim.txt"; then
+    fail doctor-before-claim "'booley doctor' did not finish (exit $before_status, no summary line)"
+elif [[ -n $other_fails ]]; then
     fail doctor-before-claim "Doctor FAILs other than the missing demo token: $other_fails"
 else
     pass doctor-before-claim
@@ -157,8 +162,10 @@ if [[ -e $demo_token ]]; then
 else
     mkdir -p "$(dirname "$demo_token")"
     printf 'bgw_smoke-placeholder-0123456789abcdef\n' > "$demo_token"
-    if ! check_doctor doctor; then
-        fail doctor "'booley doctor' with a demo token exited $?"
+    check_doctor doctor
+    after_status=$?
+    if (( after_status != 0 )); then
+        fail doctor "'booley doctor' with a demo token exited $after_status"
     elif ! grep -q 'PASS  Codex auth: the gateway at ' "$evidence_dir/doctor.txt"; then
         fail doctor "no PASS line for the gateway credential"
     else
@@ -167,8 +174,9 @@ else
     rm -f "$demo_token"
 fi
 # Expected warnings, by exact check id. A Codespace on main has a local main
-# branch; a CI checkout of a pull request does not.
-expected_warnings='project-data\.destination-branch-missing'
+# branch; a CI checkout of a pull request does not. agent.credential-missing is
+# the missing demo token in newer Booley (the "after" run must PASS it above).
+expected_warnings='project-data\.destination-branch-missing|agent\.credential-missing'
 unexpected=$(grep -hE 'WARN  ' "$evidence_dir/doctor-before-claim.txt" "$evidence_dir/doctor.txt" | grep -vE "\[($expected_warnings)[]:]")
 if [[ -n $unexpected ]]; then
     fail doctor-warnings "unexpected Doctor warnings: $unexpected"

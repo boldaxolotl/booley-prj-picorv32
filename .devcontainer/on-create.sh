@@ -101,7 +101,8 @@ PY
 # through the demo gateway. Put booley-demo-claim on PATH and offer the GitHub
 # sign-in in the first terminal (see .devcontainer/gateway/README.md).
 stamp "hook the demo gateway sign-in into interactive shells"
-add_line "$HOME/.bashrc" "source $repo_dir/.devcontainer/gateway/first-terminal.sh"
+hook="$repo_dir/.devcontainer/gateway/first-terminal.sh"
+add_line "$HOME/.bashrc" "[ -f \"$hook\" ] && source \"$hook\""
 
 stamp "build firmware images (post-setup hook)"
 (cd "$PROJECT" && bash .booley/hooks/post-setup.sh)

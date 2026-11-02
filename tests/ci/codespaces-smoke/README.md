@@ -58,10 +58,11 @@ container running for inspection.
 ## Doctor before the demo sign-in
 
 With no demo token yet, Doctor runs `BOOLEY_GATEWAY_TOKEN_COMMAND`, which
-exits 1, and FAILs the gateway credential (`agent.credential-missing`).
-`CODESPACES.md` says no check should fail before sign-in, so this is a known
-gap in Booley's grading, not the visitor's setup. The smoke accepts that one
-FAIL (or none) and fails on any other.
+exits 1, and grades the gateway credential (`agent.credential-missing`). The
+pinned Booley FAILs it; newer Booley warns instead when `BOOLEY_AGENT_APP=auto`
+picked the gateway. `CODESPACES.md` tells visitors the check fails until they
+have a token. The smoke accepts that one finding, as a FAIL or a warning,
+requires Doctor to finish, and fails on anything else.
 
 ## What it cannot check
 

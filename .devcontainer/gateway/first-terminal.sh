@@ -19,7 +19,7 @@ _booley_demo_offer() {
   # use up the one offer.
   [[ -t 0 && -t 1 ]] || return 0
   [[ -e $offered ]] && return 0
-  grep -qs '"policy": "gateway"' "$HOME/.booley-agent-app.json" || return 0
+  grep -Eqs '"policy": *"gateway"' "$HOME/.booley-agent-app.json" || return 0
   # A saved token means the visitor already signed in.
   "${BOOLEY_GATEWAY_TOKEN_COMMAND:-false}" >/dev/null 2>&1 && return 0
   # Offer once: a visitor who declines or closes the terminal is not asked again.
