@@ -1,12 +1,14 @@
-"""Unit tests for the sponsored-mode smoke: the gateway stub and the run verdict."""
+"""Unit tests for the sponsored-mode smoke: the gateway stub, the derived config and the run verdict."""
 
 from __future__ import annotations
 
 import http.client
 import importlib.util
 import json
+import os
 import shutil
 import ssl
+import subprocess
 import threading
 from collections.abc import Iterator
 from pathlib import Path
@@ -213,37 +215,131 @@ def test_judge_fail_needs_the_gateway_env_failure_and_no_turn(tmp_path: Path) ->
     ]
 
 
-def test_config_copy_drops_only_the_gateway_env(tmp_path: Path) -> None:
-    original = json.loads(run_smoke.CONFIG.read_text())
+def _real_spec() -> dict[str, object]:
+    return json.loads(run_smoke.SPEC.read_text())
 
-    full = json.loads(
-        run_smoke._write_config(
-            tmp_path, without_gateway_env=False, image=None
-        ).read_text()
+
+def _without(mapping: dict[str, object], *keys: str) -> dict[str, object]:
+    return {key: value for key, value in mapping.items() if key not in keys}
+
+
+def test_smoke_boots_the_real_spec_not_a_fixture() -> None:
+    assert run_smoke.SPEC == run_smoke.REPO_ROOT / ".devcontainer" / "devcontainer.json"
+    # The hand-maintained fixture copy is gone; nothing may bring it back.
+    assert not (SMOKE_DIR / "devcontainer.json").exists()
+
+
+def test_derived_config_is_the_real_spec_plus_only_the_documented_overrides() -> None:
+    spec = _real_spec()
+    base = run_smoke.codespaces_smoke.ci_config(spec)
+
+    config = run_smoke.sponsored_config(spec, without_gateway_env=False)
+
+    # Outside the environments, only the stub's host alias is added to the
+    # Codespaces smoke's headless derivation of the same spec.
+    assert config["runArgs"] == [*base["runArgs"], run_smoke.STUB_HOST_ALIAS]
+    assert _without(config, "runArgs", *run_smoke.ENV_KEYS) == _without(
+        base, "runArgs", *run_smoke.ENV_KEYS
     )
-    stripped = json.loads(
-        run_smoke._write_config(
-            tmp_path, without_gateway_env=True, image="example/img"
-        ).read_text()
+    for key in run_smoke.ENV_KEYS:
+        env, shipped = config[key], spec[key]
+        assert env == {**shipped, **run_smoke.ENV_OVERRIDES}, key
+        # Overrides replace only the gateway URL; the rest are CI-only additions.
+        assert set(run_smoke.ENV_OVERRIDES) & set(shipped) == {"BOOLEY_GATEWAY_URL"}
+        # Sponsored mode as shipped: auto selection, the real token command and model.
+        assert env["BOOLEY_AGENT_APP"] == env["BOOLEY_PRIMARY_AUTH"] == "auto"
+        assert (
+            env["BOOLEY_GATEWAY_TOKEN_COMMAND"]
+            == shipped["BOOLEY_GATEWAY_TOKEN_COMMAND"]
+        )
+        assert env["BOOLEY_GATEWAY_MODEL"] == shipped["BOOLEY_GATEWAY_MODEL"]
+    # Image, users, workspace folder and lifecycle commands come from the spec.
+    for key in (
+        "image",
+        "remoteUser",
+        "containerUser",
+        "workspaceFolder",
+        "initializeCommand",
+        "onCreateCommand",
+        "postCreateCommand",
+        "postStartCommand",
+    ):
+        assert config[key] == spec[key], key
+    # The spec itself is left untouched.
+    assert spec == _real_spec()
+
+
+def test_derived_config_points_the_gateway_at_the_stub() -> None:
+    config = run_smoke.sponsored_config(_real_spec(), without_gateway_env=False)
+
+    for key in run_smoke.ENV_KEYS:
+        env = config[key]
+        assert env["BOOLEY_GATEWAY_URL"] == (
+            f"https://{run_smoke.STUB_HOST}:{run_smoke.STUB_PORT}/v1"
+        )
+        assert env["CODEX_CA_CERTIFICATE"] == (
+            f"{run_smoke.CONTAINER_STUB_DIR}/certs/{stub.CA_CERT}"
+        )
+        assert (
+            env[run_smoke.DEMO_TOKEN_FILE_ENV]
+            == f"{run_smoke.CONTAINER_STUB_DIR}/token"
+        )
+
+
+def test_negative_config_drops_only_the_gateway_env_from_both_environments() -> None:
+    spec = _real_spec()
+    full = run_smoke.sponsored_config(spec, without_gateway_env=False)
+
+    stripped = run_smoke.sponsored_config(
+        spec, without_gateway_env=True, image="example/img"
     )
 
-    assert full == original
-    assert set(original["containerEnv"]) - set(stripped["containerEnv"]) == set(
-        run_smoke.GATEWAY_ENV
-    )
     assert stripped["image"] == "example/img"
+    for key in run_smoke.ENV_KEYS:
+        assert stripped[key] == _without(full[key], *run_smoke.GATEWAY_ENV), key
+        assert stripped[key]["BOOLEY_PRIMARY_AUTH"] == "auto"
 
 
-def test_config_points_the_gateway_at_the_stub() -> None:
-    env = json.loads(run_smoke.CONFIG.read_text())["containerEnv"]
+def test_derivation_refuses_a_spec_without_the_gateway_settings() -> None:
+    spec = _real_spec()
+    del spec["remoteEnv"]["BOOLEY_GATEWAY_MODEL"]
 
-    assert env["BOOLEY_PRIMARY_AUTH"] == "gateway"
-    assert env["BOOLEY_GATEWAY_URL"] == (
-        f"https://{run_smoke.STUB_HOST}:{run_smoke.STUB_PORT}/v1"
+    with pytest.raises(SystemExit, match="remoteEnv does not set BOOLEY_GATEWAY_MODEL"):
+        run_smoke.sponsored_config(spec, without_gateway_env=False)
+
+
+def test_write_config_writes_the_derived_config(tmp_path: Path) -> None:
+    written = run_smoke._write_config(tmp_path, without_gateway_env=False, image=None)
+
+    assert json.loads(written.read_text()) == run_smoke.sponsored_config(
+        _real_spec(), without_gateway_env=False
     )
-    assert (
-        env["CODEX_CA_CERTIFICATE"]
-        == f"{run_smoke.CONTAINER_STUB_DIR}/certs/{stub.CA_CERT}"
+
+
+def test_stub_token_has_the_shape_the_shipped_token_script_accepts(
+    tmp_path: Path,
+) -> None:
+    # The smoke keeps the real token command, so the stub's token must pass it.
+    assert shutil.which("bash"), "the token script test needs bash"
+    token_file = tmp_path / "token"
+    token_file.write_text(f"{run_smoke.TOKEN_PREFIX}{'0' * 32}\n")
+    script = run_smoke.REPO_ROOT / ".devcontainer" / "gateway" / "token.sh"
+
+    result = subprocess.run(
+        ["bash", str(script)],
+        env={
+            "PATH": os.environ["PATH"],
+            "HOME": str(tmp_path),
+            run_smoke.DEMO_TOKEN_FILE_ENV: str(token_file),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert (result.returncode, result.stdout) == (
+        0,
+        f"{run_smoke.TOKEN_PREFIX}{'0' * 32}\n",
     )
 
 

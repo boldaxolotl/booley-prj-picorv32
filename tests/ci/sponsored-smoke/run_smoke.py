@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Boot the sponsored-mode devcontainer headless against the gateway stub.
+"""Boot the demo's real devcontainer config headless in sponsored mode against the gateway stub.
 
 One run of the sponsored-mode CI smoke, the same in CI and on a developer
 machine (Linux with Docker and Node):
@@ -7,9 +7,12 @@ machine (Linux with Docker and Node):
 1. Create a throwaway TLS CA and token beside the repo checkout, in
    ``../gateway-stub`` (the config mounts the checkout's parent at
    ``/workspaces``, as Codespaces does), and start ``gateway_stub.py``.
-2. ``devcontainer up`` a copy of the fixture config. ``--without-gateway-env``
-   removes the gateway variables (the negative run); ``--image`` swaps the
-   pinned image, for example to try a repin.
+2. Derive the config to boot from the real ``.devcontainer/devcontainer.json``
+   (:func:`sponsored_config`): the Codespaces smoke's CI derivation plus only
+   the overrides that point the shipped gateway settings at the stub.
+   ``--without-gateway-env`` removes the ``BOOLEY_GATEWAY_*`` variables (the
+   negative run); ``--image`` swaps the pinned image, for example to try a
+   repin. ``devcontainer up`` that config.
 3. Run ``smoke.sh`` in the container, then check the stub's request log.
 4. Remove the container and stop the stub.
 
@@ -25,6 +28,7 @@ token is random, and the container gets no agent credential.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
 import secrets
@@ -33,26 +37,65 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from types import ModuleType
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from gateway_stub import RESPONSES_SUFFIX  # sibling script, found via sys.path
+from gateway_stub import CA_CERT, RESPONSES_SUFFIX  # sibling script, found via sys.path
 
 REPO_ROOT = HERE.parents[2]
-CONFIG = HERE / "devcontainer.json"
+# The one config the demo ships; the smoke boots a copy derived from it.
+SPEC = REPO_ROOT / ".devcontainer" / "devcontainer.json"
 STUB = HERE / "gateway_stub.py"
+
+
+def _load_codespaces_smoke() -> ModuleType:
+    """Import the Codespaces smoke's run_smoke.py (hyphenated directory, same module name)."""
+    path = HERE.parent / "codespaces-smoke" / "run_smoke.py"
+    spec = importlib.util.spec_from_file_location("codespaces_run_smoke", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+# Shared headless derivation (Codespaces mount, no editor-only keys, the
+# smallest Codespace's CPU and memory caps), so both smokes boot the same base.
+codespaces_smoke = _load_codespaces_smoke()
+
 # The stub's name inside the container (runArgs adds it as a host alias) and
-# its port; both must match BOOLEY_GATEWAY_URL in the config.
+# its port; together they form the BOOLEY_GATEWAY_URL override.
 STUB_HOST = "gateway-stub"
 STUB_PORT = 8443
-DEVCONTAINER_CLI = "@devcontainers/cli@0.90.0"
-# Removed from containerEnv for the negative run.
+STUB_URL = f"https://{STUB_HOST}:{STUB_PORT}/v1"
+STUB_HOST_ALIAS = f"--add-host={STUB_HOST}:host-gateway"
+DEVCONTAINER_CLI = codespaces_smoke.DEVCONTAINER_CLI
+# Where the container sees the stub directory; smoke.sh writes evidence there.
+CONTAINER_STUB_DIR = "/workspaces/gateway-stub"
+# The shipped token command (.devcontainer/gateway/token.sh) reads the token
+# from this file, so the smoke keeps the real command and only moves its file.
+DEMO_TOKEN_FILE_ENV = "BOOLEY_DEMO_TOKEN_FILE"
+# The shipped token script accepts only tokens of this shape.
+TOKEN_PREFIX = "bgw_stub"
+# The only environment changes CI makes, applied to both containerEnv and
+# remoteEnv. Everything else comes unchanged from the real spec.
+ENV_OVERRIDES = {
+    # The stub instead of the real demo gateway (must stay https).
+    "BOOLEY_GATEWAY_URL": STUB_URL,
+    # The run's throwaway token instead of a visitor's claimed one.
+    DEMO_TOKEN_FILE_ENV: f"{CONTAINER_STUB_DIR}/token",
+    # Codex trusts the stub's throwaway CA.
+    "CODEX_CA_CERTIFICATE": f"{CONTAINER_STUB_DIR}/certs/{CA_CERT}",
+}
+# Removed from both environments for the negative run. BOOLEY_PRIMARY_AUTH and
+# BOOLEY_AGENT_APP stay "auto", as shipped: without these, auto must not find
+# a gateway.
 GATEWAY_ENV = (
-    "BOOLEY_PRIMARY_AUTH",
     "BOOLEY_GATEWAY_URL",
     "BOOLEY_GATEWAY_TOKEN_COMMAND",
     "BOOLEY_GATEWAY_MODEL",
 )
+ENV_KEYS = ("containerEnv", "remoteEnv")
 # Upper bounds for each external step. `up` pulls a multi-GB image, clones
 # upstream and fetches the PDK; `exec` runs Doctor and one Codex turn.
 UP_TIMEOUT_S = 40 * 60
@@ -60,8 +103,6 @@ EXEC_TIMEOUT_S = 20 * 60
 DOCKER_TIMEOUT_S = 120
 # Marks ../gateway-stub (and so ../picorv32) as created by this script.
 OWNER_MARKER = ".sponsored-smoke"
-# Where the container sees the stub directory; smoke.sh writes evidence there.
-CONTAINER_STUB_DIR = "/workspaces/gateway-stub"
 
 
 def _log(message: str) -> None:
@@ -106,16 +147,40 @@ def _fresh_sibling_dirs() -> Path:
     return stub_dir
 
 
+def sponsored_config(
+    spec: dict[str, object], *, without_gateway_env: bool, image: str | None = None
+) -> dict[str, object]:
+    """Return the config CI boots: *spec* in sponsored mode against the stub.
+
+    Starts from the Codespaces smoke's headless derivation, adds the stub's host
+    alias, and applies :data:`ENV_OVERRIDES` to both environments. The spec must
+    already ship the gateway settings: the smoke tests them, it never adds them.
+    """
+    config = codespaces_smoke.ci_config(spec, image=image)
+    run_args = config["runArgs"]
+    assert isinstance(run_args, list)
+    run_args.append(STUB_HOST_ALIAS)
+    for key in ENV_KEYS:
+        env = config[key]
+        assert isinstance(env, dict)
+        missing = [name for name in GATEWAY_ENV if not env.get(name)]
+        if missing:
+            raise SystemExit(f"{SPEC} {key} does not set {', '.join(missing)}")
+        env.update(ENV_OVERRIDES)
+        if without_gateway_env:
+            for name in GATEWAY_ENV:
+                del env[name]
+    return config
+
+
 def _write_config(
     stub_dir: Path, *, without_gateway_env: bool, image: str | None
 ) -> Path:
-    """Write the config to boot: the fixture, optionally without the gateway variables."""
-    config = json.loads(CONFIG.read_text(encoding="utf-8"))
-    if without_gateway_env:
-        for name in GATEWAY_ENV:
-            config["containerEnv"].pop(name)
-    if image:
-        config["image"] = image
+    """Write the config to boot, derived from the real spec, into *stub_dir*."""
+    spec = json.loads(SPEC.read_text(encoding="utf-8"))
+    config = sponsored_config(
+        spec, without_gateway_env=without_gateway_env, image=image
+    )
     derived = stub_dir / "devcontainer.json"
     derived.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     return derived
@@ -138,7 +203,7 @@ def _start_stub(stub_dir: Path) -> tuple[subprocess.Popen[bytes], Path]:
         timeout=120,
     )
     token_file = stub_dir / "token"
-    token_file.write_text(f"stub-{secrets.token_hex(16)}\n", encoding="utf-8")
+    token_file.write_text(f"{TOKEN_PREFIX}{secrets.token_hex(16)}\n", encoding="utf-8")
     request_log = stub_dir / "requests.jsonl"
     stub = subprocess.Popen(
         [
@@ -183,7 +248,7 @@ def _judge(
         authorized = [entry for entry in requests if entry["authorized"]]
         if not authorized:
             problems.append("no authorized Codex request reached the stub")
-        model = json.loads(CONFIG.read_text(encoding="utf-8"))["containerEnv"][
+        model = json.loads(SPEC.read_text(encoding="utf-8"))["containerEnv"][
             "BOOLEY_GATEWAY_MODEL"
         ]
         if any(entry["model"] != model for entry in authorized):

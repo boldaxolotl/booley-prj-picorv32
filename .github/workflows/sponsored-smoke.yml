@@ -1,8 +1,9 @@
 name: Sponsored-mode smoke
 
-# Boots the sponsored (gateway) Codespaces environment headless against a local
-# gateway stub. No real gateway and no real credential: the stub's TLS CA and
-# bearer token are generated per run. See tests/ci/sponsored-smoke/run_smoke.py.
+# Boots the demo's real .devcontainer/devcontainer.json headless in sponsored
+# (gateway) mode against a local gateway stub. No real gateway and no real
+# credential: the stub's TLS CA and bearer token are generated per run. See
+# tests/ci/sponsored-smoke/run_smoke.py.
 
 on:
   pull_request:

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Sponsored-mode smoke checks, run inside the booted devcontainer.
 #
-# Proves that the sponsored (gateway) environment works with no real
-# credential: the gateway environment is set, Doctor reports no FAIL and no
-# agent credential WARN, and one interactive Codex request is answered by the
-# gateway stub. Every check runs even after an earlier one fails, and each
+# Proves that the demo's shipped config works in sponsored mode with no real
+# credential: the gateway environment is set, BOOLEY_AGENT_APP=auto chose
+# Codex through the gateway, Doctor reports no FAIL and no agent credential
+# WARN, and one interactive Codex request is answered by the gateway stub. Every check runs even after an earlier one fails, and each
 # prints one "SMOKE-PASS <check>" or "SMOKE-FAIL <check>: <reason>" line, so
 # the negative CI run can assert *why* the smoke failed. Exit 1 when any check
 # failed.
@@ -27,7 +27,6 @@ fail() {
 
 # 1. The sponsored gateway environment reached the container.
 missing=()
-[[ ${BOOLEY_PRIMARY_AUTH:-} == gateway ]] || missing+=("BOOLEY_PRIMARY_AUTH=gateway")
 [[ -n ${BOOLEY_GATEWAY_URL:-} ]] || missing+=("BOOLEY_GATEWAY_URL")
 [[ -n ${BOOLEY_GATEWAY_TOKEN_COMMAND:-} ]] || missing+=("BOOLEY_GATEWAY_TOKEN_COMMAND")
 [[ -n ${BOOLEY_GATEWAY_MODEL:-} ]] || missing+=("BOOLEY_GATEWAY_MODEL")
@@ -37,12 +36,25 @@ else
     pass gateway-env
 fi
 
+# 1b. With no credential of its own, BOOLEY_AGENT_APP=auto (as shipped) chose
+# Codex through the gateway. The registrar (postStartCommand) records the
+# choice in ~/.booley-agent-app.json.
+choice=$(python3 -c 'import json, pathlib; d = json.loads((pathlib.Path.home() / ".booley-agent-app.json").read_text()); print(d["app"], d["policy"], sep="|")' 2>&1)
+if [[ ${BOOLEY_AGENT_APP:-} != auto || ${BOOLEY_PRIMARY_AUTH:-} != auto ]]; then
+    fail agent-choice "expected BOOLEY_AGENT_APP=auto and BOOLEY_PRIMARY_AUTH=auto, got '${BOOLEY_AGENT_APP:-}' and '${BOOLEY_PRIMARY_AUTH:-}'"
+elif [[ $choice != "codex|gateway" ]]; then
+    fail agent-choice "auto chose '$choice', not codex|gateway"
+else
+    pass agent-choice
+fi
+
 # 2. No real agent credential is present, so only the gateway can answer.
 present=()
 for name in OPENAI_API_KEY CODEX_API_KEY ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN; do
     [[ -n ${!name:-} ]] && present+=("$name")
 done
 [[ -e $HOME/.codex/auth.json ]] && present+=("~/.codex/auth.json")
+[[ -e $HOME/.claude/.credentials.json ]] && present+=("~/.claude/.credentials.json")
 if ((${#present[@]})); then
     fail no-real-credential "found ${present[*]}"
 else
