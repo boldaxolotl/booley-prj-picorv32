@@ -108,9 +108,13 @@ meet, and the `zbb` Goalset fixes them in advance:
   the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
 - synthesis grows by at most 11% in cells and 3% in critical path.
 
+What to build, and which tests to add, is in the design file
+`.booley/specs/zbb-design.md`.
+
 Start a chat with `booley` and ask:
 
-> Create a new zbb worktree and use /booley-goal with the zbb Goalset
+> Create a new zbb worktree and use /booley-goal with the zbb Goalset to
+> implement the design described in .booley/specs/zbb-design.md
 
 The agent creates the worktree first, so `main` stays untouched. Then it
 lists the eight Goals and asks you to confirm before it starts. After that

@@ -139,6 +139,17 @@ def test_zbb_spec_is_committed_and_fits_the_reviewer() -> None:
         assert len(spec.read_text(encoding="utf-8")) < _SPEC_MAX_CHARS
 
 
+def test_zbb_prompts_name_the_committed_design() -> None:
+    # The Goalset holds only Goals; the visitor's prompt points the agent at the design.
+    design = REPO_ROOT / "specs" / "zbb-design.md"
+    assert design.is_file() and not design.is_symlink()
+    assert "## The change" in design.read_text(encoding="utf-8")
+    assert "## The change" not in (GOALSETS / "zbb.md").read_text(encoding="utf-8")
+    for doc in ("CODESPACES.md", "README.md"):
+        prose = " ".join((REPO_ROOT / doc).read_text(encoding="utf-8").replace(">", " ").split())
+        assert "the design described in .booley/specs/zbb-design.md" in prose, doc
+
+
 def test_main_carries_no_zbb_implementation() -> None:
     # The visitor's agent builds Zbb; this repo ships only the Goal and its spec.
     hits = [

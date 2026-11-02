@@ -76,7 +76,8 @@ so `main` stays untouched while it runs.
 
 The demo's headline Goal adds the RISC-V Zbb extension to PicoRV32 with the
 `zbb` Goalset: ask the agent to "Create a new zbb worktree and use
-/booley-goal with the zbb Goalset". Step
+/booley-goal with the zbb Goalset to implement the design described in
+.booley/specs/zbb-design.md". Step
 4 of [CODESPACES.md](CODESPACES.md#4-main-event-add-a-risc-v-extension-in-goal-mode)
 walks through it, locally as well as in a Codespace. For a change of your own:
 
