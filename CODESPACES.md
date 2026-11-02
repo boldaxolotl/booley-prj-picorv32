@@ -30,8 +30,8 @@ Follow its prompts. Your GitHub account must be at least 30 days old. If it
 fails, run it again.
 
 Each GitHub account gets $1 of demo usage per month. GPT-6 Luna is cheap, so
-that's about 1.5 hours of the agent working nonstop, or four runs of the
-step 4 Goal (about $0.22 each). Normal back-and-forth use lasts longer. A
+that's about 1.5 hours of the agent working nonstop, or about three runs of
+the step 4 Goal (about $0.35 each). Normal back-and-forth use lasts longer. A
 token lasts 30 days, and one GitHub account can hold 3 at a time.
 
 ### Or use your own Claude or ChatGPT account
@@ -124,7 +124,7 @@ The agent creates the worktree first, so `main` stays untouched. Then it
 lists the eight Goals and asks you to confirm before it starts. After that
 it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
-about 20 minutes; it draws on your demo allowance, or on your own plan's
+about half an hour; it draws on your demo allowance, or on your own plan's
 usage if you signed in.
 
 Follow along while it works:
