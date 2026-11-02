@@ -14,6 +14,10 @@ unset _booley_demo_bin
 
 _booley_demo_offer() {
   local offered="$HOME/.config/booley-demo/offered"
+  # Only a terminal someone is typing in. VS Code also starts interactive
+  # shells without one (to read the container's environment); those must not
+  # use up the one offer.
+  [[ -t 0 && -t 1 ]] || return 0
   [[ -e $offered ]] && return 0
   grep -qs '"policy": "gateway"' "$HOME/.booley-agent-app.json" || return 0
   # A saved token means the visitor already signed in.
