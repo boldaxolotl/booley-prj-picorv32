@@ -74,8 +74,8 @@ In the terminal:
 booley doctor
 ```
 
-No check should fail. Until you have a demo token or sign in, Doctor warns
-that the agent has no credential. A few Codespaces-specific warnings are waived on purpose;
+No check should fail once you have a demo token or have signed in; before
+that, the agent credential check fails. A few Codespaces-specific warnings are waived on purpose;
 `.booley/doctor-waivers.toml` says why.
 
 ## 3. Ask the agent to run things

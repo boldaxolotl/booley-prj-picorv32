@@ -9,12 +9,13 @@ One run of the Codespaces CI smoke, the same in CI and on a developer machine
 2. ``devcontainer up`` that config. Its own ``initializeCommand`` and
    ``onCreateCommand`` build the Codespaces layout: ``../picorv32`` is the
    upstream checkout and its ``.booley`` links to this repository.
-3. Run ``smoke.sh`` in the container: layout, agent choice, Git identity,
-   Doctor, and the lint, simulation and synthesis Targets.
+3. Run ``smoke.sh`` in the container: layout, the sponsored agent choice,
+   Git identity, Doctor, the lint, simulation and synthesis Targets, and the
+   switch to the visitor's own Codex or Claude account.
 4. Remove the container.
 
 Exit 0 when every check passed. No credential is used: the container starts
-with none, as a visitor does before signing in.
+with none, as a visitor does before claiming a demo token or signing in.
 """
 
 from __future__ import annotations

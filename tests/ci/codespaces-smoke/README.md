@@ -10,17 +10,28 @@ five minutes depend on:
   (extensions, host requirements, `postAttachCommand`). It
   mounts the checkout's parent at `/workspaces`, as Codespaces does, then runs
   `devcontainer up`, `smoke.sh`, and teardown.
-- `smoke.sh` runs inside the container: the `/workspaces/picorv32` layout, the
-  `BOOLEY_AGENT_APP=auto` choice with no credential (Claude Code with sign-in
-  offered), the agent Git identity, `booley doctor`, `booley targets`, and the
+- `smoke.sh` runs inside the container: the `/workspaces/picorv32` layout;
+  the `BOOLEY_AGENT_APP=auto` choice with no credential (Codex through the
+  demo gateway, recorded as `codex|gateway`, before any demo token exists);
+  the first-terminal sign-in hook (`booley-demo-claim` on an interactive
+  shell's `PATH`, no offer used up without a terminal); Claude Code's
+  first-run prompts marked done; the agent Git identity; `booley doctor` before the
+  demo sign-in (its only allowed FAIL is the missing demo token, see below)
+  and with a stand-in demo token (no FAIL, the gateway credential passes),
+  each with no warning but the expected ones; `booley targets`; and the
   `lint_core`, `sim_core` and `synth_core` Targets. It runs
   `tests/ci/test_goalsets.py` with the image's Booley: every Goalset parses,
-  and Goal Mode entry accepts the `zbb` Goals in the checkout. Last, it checks the
-  Codex path: a stand-in Codex login plus the registrar switches `booley` to
-  Codex.
+  and Goal Mode entry accepts the `zbb` Goals in the checkout. Last, it checks
+  the own-account switch: after a stand-in Codex login and a registrar re-run,
+  the choice is `codex|auto` and `booley chat` starts Codex; with a stand-in
+  Claude login as well it is `claude|auto` and `booley chat` starts Claude
+  Code; with both removed it falls back to `codex|gateway`.
 
-No credential is used. The run clears agent credential variables from its own
-environment before booting.
+No credential is used, and no request reaches the real gateway: the run
+clears agent credential variables from its own environment before booting,
+and the stand-in logins only drive the choice and `booley chat -- --version`.
+Requests through the gateway are the sponsored smoke's job
+(`../sponsored-smoke`).
 
 `tests/ci/test_codespaces_spec.py` checks the spec statically, including that
 the repository has exactly one devcontainer config: with more than one,
@@ -43,6 +54,14 @@ python3 tests/ci/codespaces-smoke/run_smoke.py
 
 `--image` boots another image, for example to try a repin; `--keep` leaves the
 container running for inspection.
+
+## Doctor before the demo sign-in
+
+With no demo token yet, Doctor runs `BOOLEY_GATEWAY_TOKEN_COMMAND`, which
+exits 1, and FAILs the gateway credential (`agent.credential-missing`).
+`CODESPACES.md` says no check should fail before sign-in, so this is a known
+gap in Booley's grading, not the visitor's setup. The smoke accepts that one
+FAIL (or none) and fails on any other.
 
 ## What it cannot check
 
