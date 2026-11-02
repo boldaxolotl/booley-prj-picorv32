@@ -121,3 +121,21 @@ def test_open_files_resolve_from_the_workspace_folder() -> None:
     for entry in open_files:
         assert entry.startswith(".booley/"), entry
         assert (REPO_ROOT / entry.removeprefix(".booley/")).is_file(), entry
+
+
+def test_environment_ships_a_complete_gateway_config() -> None:
+    # With no credential of the visitor's own, BOOLEY_AGENT_APP=auto picks
+    # Codex through the gateway only when URL, token command and model are all
+    # set; the smoke's agent-choice check expects exactly that (codex|gateway).
+    spec = _spec()
+    env = spec["containerEnv"]
+    assert isinstance(env, dict)
+    # Booley reads the same settings from either block (see the remoteEnv test).
+    for key in ("BOOLEY_GATEWAY_URL", "BOOLEY_GATEWAY_TOKEN_COMMAND", "BOOLEY_GATEWAY_MODEL"):
+        assert spec["remoteEnv"][key] == env[key], key
+    assert env["BOOLEY_GATEWAY_URL"].startswith("https://")
+    assert env["BOOLEY_GATEWAY_MODEL"]
+    prefix = "/workspaces/${localWorkspaceFolderBasename}/"
+    command = env["BOOLEY_GATEWAY_TOKEN_COMMAND"]
+    assert command.startswith(prefix), command
+    assert (REPO_ROOT / command.removeprefix(prefix)).is_file(), command

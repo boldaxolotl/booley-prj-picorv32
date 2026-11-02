@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Get a free Booley demo token: show the notice, ask for consent, then sign in
+# with GitHub. Wraps the vendored claim.sh (see ../README.md).
+#
+# Booley's BOOLEY_GATEWAY_URL ends in /v1 (it is Codex's API base URL), while
+# claim.sh posts to <gateway root>/claim, so strip the suffix first.
+set -euo pipefail
+here="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+url="${BOOLEY_GATEWAY_URL:-https://gw.booley.dev}"
+url="${url%/}"
+BOOLEY_GATEWAY_URL="${url%/v1}" exec bash "$here/claim.sh" "$@"

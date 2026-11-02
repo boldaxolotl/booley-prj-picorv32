@@ -2,19 +2,44 @@
 
 This Codespace is a complete Booley setup for [PicoRV32](https://github.com/YosysHQ/picorv32),
 a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
-already installed. All you bring is a Claude account (a Claude subscription or
-an Anthropic Console account) or a ChatGPT account for Codex.
+already installed, and the agent is free: it runs OpenAI's GPT-6 Luna on the
+Booley maintainer's account. You only need a GitHub account.
 
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
-## 1. Sign in to your agent
+When VS Code asks **Do you trust the authors of the files in this folder?**,
+click **Trust Folder & Continue**. That turns on the Booley Dashboard and the
+waveform viewer.
 
-Sign in to **one** agent. If both are signed in, Booley uses Claude Code.
+## 1. Get your free demo token
 
-### Claude Code
+The first terminal you open (`` Ctrl+` ``) shows the demo notice: what the
+gateway logs (usage numbers, never your prompts or code), who can use it, and
+the usage rules.
+Type `yes` to agree. Then open the GitHub link it prints, enter the code, and
+let the "Booley demo" app read your public profile. Your GitHub account must
+be at least 30 days old. The terminal says when your token is saved.
 
-Open a terminal (`` Ctrl+` ``) and run:
+Closed that terminal, or said no? Open a new one and run:
+
+```bash
+booley-demo-claim
+```
+
+Each GitHub account gets $0.50 of demo usage per month, plenty for steps 2
+and 3. The Zbb Goal in step 4 is a much bigger job and may use it all up; if
+the allowance runs out, use your own account instead. A token lasts 30 days,
+and one GitHub account can hold 3 at a time.
+
+### Or use your own Claude or ChatGPT account
+
+Your own account gets you a stronger model, within your own plan's limits
+instead of the demo allowance. Booley uses it instead of the demo token. When
+the first terminal shows the demo notice, answer anything but `yes` to skip
+it, then sign in:
+
+**Claude Code.** Open a terminal (`` Ctrl+` ``) and run:
 
 ```bash
 BROWSER=none claude auth login
@@ -26,17 +51,17 @@ press Enter. Use each link once: if sign-in fails, run the command again for a
 fresh link. (`BROWSER=none` stops Claude Code from also opening a tab that
 returns to a `localhost` address, which a browser Codespace can't reach.)
 
-### Codex
-
-Open a terminal (`` Ctrl+` ``) and run:
+**Codex.** Open a terminal and run:
 
 ```bash
 codex login --device-auth
 ```
 
 Open the link it prints, sign in with your ChatGPT account, and enter the
-one-time code it shows. Then switch Booley to Codex (it starts with Claude Code
-when nothing is signed in):
+one-time code it shows.
+
+Then switch Booley to your account (if both are signed in, it picks Claude
+Code):
 
 ```bash
 python -m booley.harness.incontainer_register
@@ -53,8 +78,8 @@ In the terminal:
 booley doctor
 ```
 
-No check should fail. Until you sign in, Doctor warns that the agent has no
-credential. A few Codespaces-specific warnings are waived on purpose;
+No check should fail once you have a demo token or have signed in; before
+that, the agent credential check fails. A few Codespaces-specific warnings are waived on purpose;
 `.booley/doctor-waivers.toml` says why.
 
 ## 3. Ask the agent to run things
@@ -99,7 +124,8 @@ Then start a chat with `booley` and ask:
 The agent lists the eight Goals and asks you to confirm before it starts.
 After that it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
-about half an hour; it uses your Claude or ChatGPT plan's usage.
+about half an hour; it draws on your demo allowance, or on your own plan's
+usage if you signed in.
 
 Follow along while it works:
 
@@ -117,11 +143,12 @@ See the [demo README](README.md#then-try-goal-mode) for Goal Mode in general.
 
 ## Good to know
 
-- This Codespace runs on your own GitHub account's Codespaces quota (free
-  accounts get a monthly allowance) and your own Claude or ChatGPT account.
-  Stop it from [github.com/codespaces](https://github.com/codespaces) when
-  you're done. A stopped Codespace still uses storage; delete it when you no
-  longer need it.
+- The Codespace runs on your GitHub account's free monthly Codespaces
+  allowance. Stop it from [github.com/codespaces](https://github.com/codespaces)
+  when you're done. A stopped Codespace still uses storage; delete it when you
+  no longer need it.
+- The demo token's allowance resets each month. Rebuilding the container
+  deletes the token; run `booley-demo-claim` to get a new one.
 - Your PicoRV32 edits live in `/workspaces/picorv32` and survive a rebuild.
 - To run Booley on your own machine instead, see the
   [demo README](README.md#quick-start).

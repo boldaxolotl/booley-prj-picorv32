@@ -97,6 +97,13 @@ config.setdefault("hasSeenAutoDefaultNudge", True)
 path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 PY
 
+# Sponsored mode: with no credential of the visitor's own, Booley runs Codex
+# through the demo gateway. Put booley-demo-claim on PATH and offer the GitHub
+# sign-in in the first terminal (see .devcontainer/gateway/README.md).
+stamp "hook the demo gateway sign-in into interactive shells"
+hook="$repo_dir/.devcontainer/gateway/first-terminal.sh"
+add_line "$HOME/.bashrc" "[ -f \"$hook\" ] && source \"$hook\""
+
 stamp "build firmware images (post-setup hook)"
 (cd "$PROJECT" && bash .booley/hooks/post-setup.sh)
 

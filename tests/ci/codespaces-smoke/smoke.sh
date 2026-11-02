@@ -2,9 +2,10 @@
 # Codespaces smoke checks, run inside the booted demo devcontainer.
 #
 # Covers what a visitor's first five minutes depend on: the Codespaces layout,
-# the agent choice with no credential, the agent Git identity, Doctor, and the
-# lint, simulation and synthesis Targets. Every check runs even after an
-# earlier one fails, and each prints one "SMOKE-PASS <check>" or
+# the agent choice with no credential (Codex through the demo gateway), the
+# agent Git identity, Doctor, the lint, simulation and synthesis Targets, and
+# the switch to the visitor's own Codex or Claude account. Every check runs
+# even after an earlier one fails, and each prints one "SMOKE-PASS <check>" or
 # "SMOKE-FAIL <check>: <reason>" line. Exit 1 when any check failed.
 #
 # Usage: smoke.sh EVIDENCE_DIR
@@ -49,21 +50,47 @@ else
     pass layout
 fi
 
-# 2. With no credential, BOOLEY_AGENT_APP=auto resolves to Claude Code and
-# offers its sign-in (the registrar publishes the choice on every start).
+# The start's BOOLEY_AGENT_APP=auto choice as "app|policy", from the record the
+# registrar publishes on every start (and on each manual re-run).
 choice_file="$HOME/.booley-agent-app.json"
+read_choice() {
+    python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); print(d["app"], d["policy"], sep="|")' "$choice_file" 2>&1
+}
+
+# 2. Sponsored mode: with no credential of the visitor's own, BOOLEY_AGENT_APP=auto
+# resolves to Codex through the demo gateway. The choice comes from the
+# gateway settings alone: no demo token exists yet (the visitor claims one in
+# the first terminal), and none is needed to choose.
 if [[ ${BOOLEY_AGENT_APP:-} != auto ]]; then
     fail agent-choice "BOOLEY_AGENT_APP is '${BOOLEY_AGENT_APP:-}', not auto"
-elif ! choice=$(python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); print(d["app"], "|", d["reason"])' "$choice_file" 2>&1); then
+elif ! choice=$(read_choice); then
     fail agent-choice "no readable choice record at $choice_file: $choice"
-elif [[ $choice != "claude |"* ]]; then
-    fail agent-choice "expected claude, got: $choice"
+elif [[ $choice != "codex|gateway" ]]; then
+    fail agent-choice "expected codex|gateway, got: $choice"
 else
     pass agent-choice
 fi
 
-# Claude Code opens without its first-run theme and auto-mode prompts
-# (on-create records both as answered), so a visitor goes straight to `claude auth login`.
+# The demo sign-in hook: on-create sources first-terminal.sh from ~/.bashrc.
+# An interactive shell without a terminal (as VS Code starts to read the
+# environment) gets booley-demo-claim on PATH but must not use up the one
+# sign-in offer.
+offered="$HOME/.config/booley-demo/offered"
+claim=$(bash -ic 'command -v booley-demo-claim' < /dev/null 2>&1)
+hook="$repo_dir/.devcontainer/gateway/first-terminal.sh"
+if ! grep -qxF "[ -f \"$hook\" ] && source \"$hook\"" "$HOME/.bashrc"; then
+    fail first-terminal "~/.bashrc does not source .devcontainer/gateway/first-terminal.sh"
+elif [[ $claim != */.devcontainer/gateway/bin/booley-demo-claim ]]; then
+    fail first-terminal "booley-demo-claim is not on an interactive shell's PATH: $claim"
+elif [[ -e $offered ]]; then
+    fail first-terminal "a shell without a terminal used up the sign-in offer ($offered)"
+else
+    pass first-terminal
+fi
+
+# A visitor who signs in to Claude Code instead opens it without its first-run
+# theme and auto-mode prompts (on-create records both as answered), so they go
+# straight to `claude auth login`.
 if python3 -c 'import json, pathlib, sys; c = json.loads((pathlib.Path.home() / ".claude.json").read_text()); sys.exit(0 if c.get("hasCompletedOnboarding") is True and c.get("theme") and c.get("hasSeenAutoDefaultNudge") is True else 1)' 2>/dev/null; then
     pass claude-onboarding
 else
@@ -96,12 +123,61 @@ else
     fail dashboard-task "attach policy: $policy"
 fi
 
-# 5. Doctor reports no FAIL, then the Targets a visitor tries first pass.
-check_command doctor 900 booley doctor
-# A visitor should see no warning except the ones signing in clears. CI
-# checkouts also lack a local main branch, which a Codespace on main has.
-expected_warnings='agent\.credential-missing|agent\.rotation-risk|project-data\.destination-branch-missing'
-unexpected=$(grep -E 'WARN  ' "$evidence_dir/doctor.txt" | grep -vE "\[($expected_warnings)[]:]")
+# 5. Doctor, before and after the demo sign-in, then the Targets a visitor
+# tries first.
+#
+# Before the claim: Doctor runs the gateway token command fresh, and with no
+# token yet it grades the gateway credential (check id agent.credential-missing).
+# The pinned Booley FAILs it (FAIL lines print no id, so the smoke matches the
+# message); newer Booley warns instead (the warning allowlist below names the
+# id). CODESPACES.md tells visitors the check fails until they have a token.
+# The smoke accepts that one finding, requires a finished Doctor run, and
+# fails on anything else.
+check_doctor() {
+    local name=$1 log="$evidence_dir/$1.txt"
+    (cd "$project_root" && timeout 900 booley doctor) > "$log" 2>&1
+    local status=$?
+    cat "$log"
+    return $status
+}
+check_doctor doctor-before-claim
+before_status=$?
+other_fails=$(grep -E 'FAIL  ' "$evidence_dir/doctor-before-claim.txt" | grep -vF 'FAIL  BOOLEY_GATEWAY_TOKEN_COMMAND exited 1')
+if (( before_status > 1 )) || ! grep -qE '[0-9]+ passed,' "$evidence_dir/doctor-before-claim.txt"; then
+    fail doctor-before-claim "'booley doctor' did not finish (exit $before_status, no summary line)"
+elif [[ -n $other_fails ]]; then
+    fail doctor-before-claim "Doctor FAILs other than the missing demo token: $other_fails"
+else
+    pass doctor-before-claim
+fi
+
+# After the claim: a placeholder token in the file token.sh reads stands in for
+# booley-demo-claim (Doctor only runs the command; no request reaches the
+# gateway). Doctor then reports no FAIL and passes the gateway credential. The
+# token goes again right after, so the later checks see a visitor who has not
+# claimed one.
+demo_token="$HOME/.config/booley-demo/token"
+if [[ -e $demo_token ]]; then
+    fail doctor "$demo_token already exists; refusing to overwrite it"
+else
+    mkdir -p "$(dirname "$demo_token")"
+    printf 'bgw_smoke-placeholder-0123456789abcdef\n' > "$demo_token"
+    check_doctor doctor
+    after_status=$?
+    if (( after_status != 0 )); then
+        fail doctor "'booley doctor' with a demo token exited $after_status"
+    elif ! grep -q 'PASS  Codex auth: the gateway at ' "$evidence_dir/doctor.txt"; then
+        fail doctor "no PASS line for the gateway credential"
+    else
+        pass doctor
+    fi
+    rm -f "$demo_token"
+fi
+# Expected warnings, by exact check id. A Codespace on main has a local main
+# branch; a CI checkout of a pull request does not. agent.credential-missing is
+# the missing demo token in newer Booley (the "after" run must PASS it above).
+expected_warnings='project-data\.destination-branch-missing|agent\.credential-missing'
+unexpected=$(grep -hE 'WARN  ' "$evidence_dir/doctor-before-claim.txt" "$evidence_dir/doctor.txt" | grep -vE "\[($expected_warnings)[]:]")
 if [[ -n $unexpected ]]; then
     fail doctor-warnings "unexpected Doctor warnings: $unexpected"
 else
@@ -116,25 +192,52 @@ check_command synth 1200 booley flow synth --target synth_core
 check_command goalsets 300 env GOALSET_CHECK_REQUIRE_BOOLEY=1 PICORV32_ROOT="$project_root" \
     python3 -m pytest -q -p no:cacheprovider "$repo_dir/tests/ci/test_goalsets.py"
 
-# 6. The Codex path in CODESPACES.md: after `codex login --device-auth`,
-# re-running the registrar switches BOOLEY_AGENT_APP=auto to Codex. A
-# placeholder auth.json stands in for the login; no request is sent.
-codex_auth="$HOME/.codex/auth.json"
-if [[ -e $codex_auth ]]; then
-    fail codex-switch "$codex_auth already exists; refusing to overwrite it"
-else
-    mkdir -p "$(dirname "$codex_auth")"
-    printf '{"tokens":{"access_token":"smoke-placeholder","refresh_token":"smoke-placeholder"}}\n' > "$codex_auth"
-    (cd "$project_root" && python -m booley.harness.incontainer_register) > "$evidence_dir/codex-register.txt" 2>&1
+# 6. The own-account paths in CODESPACES.md: a visitor's own credential beats
+# the gateway once the registrar re-runs. Placeholder login files stand in for
+# `codex login --device-auth` and `claude auth login`; no request is sent.
+# Each case checks the published choice (the gateway policy gives way to the
+# shipped BOOLEY_PRIMARY_AUTH=auto) and the app `booley chat` starts, since
+# Codex alone would start in sponsored mode too.
+register() {
+    (cd "$project_root" && python -m booley.harness.incontainer_register) >> "$evidence_dir/own-account-register.txt" 2>&1
+}
+# own_account_case NAME EXPECTED_CHOICE CHAT_MARKER
+own_account_case() {
+    local name=$1 expected=$2 marker=$3 got launched
+    register
+    got=$(read_choice)
     launched=$(cd "$project_root" && timeout 60 booley chat -- --version 2>&1)
-    echo "$launched" > "$evidence_dir/codex-chat.txt"
-    if [[ $launched == *"codex-cli "* ]]; then
-        pass codex-switch
+    echo "$launched" > "$evidence_dir/$name-chat.txt"
+    if [[ $got != "$expected" ]]; then
+        fail "$name" "expected choice $expected after re-registering, got: $got"
+    elif [[ $launched != *"$marker"* ]]; then
+        fail "$name" "booley chat did not start the expected app: $launched"
     else
-        fail codex-switch "booley chat did not start Codex after re-registering: $launched"
+        pass "$name"
     fi
-    rm -f "$codex_auth"
-    (cd "$project_root" && python -m booley.harness.incontainer_register) >> "$evidence_dir/codex-register.txt" 2>&1
+}
+codex_auth="$HOME/.codex/auth.json"
+claude_auth="$HOME/.claude/.credentials.json"
+if [[ -e $codex_auth || -e $claude_auth ]]; then
+    fail own-account "an agent login file already exists; refusing to overwrite it"
+else
+    mkdir -p "$(dirname "$codex_auth")" "$(dirname "$claude_auth")"
+    # Codex login: Codex with the visitor's account, not the gateway.
+    printf '{"tokens":{"access_token":"smoke-placeholder","refresh_token":"smoke-placeholder"}}\n' > "$codex_auth"
+    own_account_case codex-switch "codex|auto" "codex-cli "
+    # Claude login as well: Claude wins over Codex ("if both are signed in, it
+    # picks Claude Code").
+    printf '{"claudeAiOauth":{"accessToken":"smoke-placeholder","refreshToken":"smoke-placeholder"}}\n' > "$claude_auth"
+    own_account_case claude-switch "claude|auto" "(Claude Code)"
+    # Both logins gone: the next registration falls back to the gateway.
+    rm -f "$codex_auth" "$claude_auth"
+    register
+    got=$(read_choice)
+    if [[ $got == "codex|gateway" ]]; then
+        pass gateway-fallback
+    else
+        fail gateway-fallback "expected codex|gateway after removing the logins, got: $got"
+    fi
 fi
 
 if ((failures)); then
