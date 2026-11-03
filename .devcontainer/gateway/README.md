@@ -13,6 +13,6 @@ key; the Codespace only gets a revocable per-visitor token.
 - `bin/booley-demo-claim` runs `claim.sh` against the gateway root (Booley's
   URL ends in `/v1`).
 - `shell-path.sh` is sourced from `~/.bashrc` and puts `booley-demo-claim`
-  on an interactive shell's `PATH`. The visitor runs it (`CODESPACES.md`
+  on an interactive shell's `PATH`. The visitor runs it (`START-HERE.md`
   step 1); nothing offers it automatically, because the Dashboard terminal
   opens over the first terminal when the visitor clicks Trust.
