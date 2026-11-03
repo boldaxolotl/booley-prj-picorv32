@@ -145,7 +145,7 @@ def test_zbb_prompts_name_the_committed_design() -> None:
     assert design.is_file() and not design.is_symlink()
     assert "## The change" in design.read_text(encoding="utf-8")
     assert "## The change" not in (GOALSETS / "zbb.md").read_text(encoding="utf-8")
-    for doc in ("CODESPACES.md", "README.md"):
+    for doc in ("START-HERE.md", "README.md"):
         prose = " ".join((REPO_ROOT / doc).read_text(encoding="utf-8").replace(">", " ").split())
         assert "the design described in .booley/specs/zbb-design.md" in prose, doc
 

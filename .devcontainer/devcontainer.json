@@ -71,13 +71,13 @@
         "python.terminal.activateEnvironment": false,
         "booley.dashboard.attachProtocol": 1,
         "workbench.editorAssociations": {
-          "**/CODESPACES.md": "vscode.markdown.preview.editor"
+          "**/START-HERE.md": "vscode.markdown.preview.editor"
         }
       }
     },
     "codespaces": {
       "openFiles": [
-        ".booley/CODESPACES.md"
+        ".booley/START-HERE.md"
       ]
     }
   }

@@ -60,12 +60,12 @@ container running for inspection.
 With no demo token yet, Doctor runs `BOOLEY_GATEWAY_TOKEN_COMMAND`, which
 exits 1, and grades the gateway credential (`agent.credential-missing`). The
 pinned Booley FAILs it; newer Booley warns instead when `BOOLEY_AGENT_APP=auto`
-picked the gateway. `CODESPACES.md` tells visitors the check fails until they
+picked the gateway. `START-HERE.md` tells visitors the check fails until they
 have a token. The smoke accepts that one finding, as a FAIL or a warning,
 requires Doctor to finish, and fails on anything else.
 
 ## What it cannot check
 
 Which folder the Codespaces browser and desktop clients open, whether
-`CODESPACES.md` and the Dashboard open on first start, and the agent sign-in
+`START-HERE.md` and the Dashboard open on first start, and the agent sign-in
 itself all need a real Codespace and a person at the client.

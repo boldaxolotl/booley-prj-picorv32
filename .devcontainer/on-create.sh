@@ -83,7 +83,7 @@ PY
 # A local Sandbox skips both by copying the host's ~/.claude.json. Record both
 # as answered here instead (merged into any existing file, so the Booley MCP
 # entry the registrar adds survives). Sign-in is then `claude auth login`;
-# see CODESPACES.md.
+# see START-HERE.md.
 stamp "skip Claude Code's first-run prompts"
 python3 - <<'PY'
 import json

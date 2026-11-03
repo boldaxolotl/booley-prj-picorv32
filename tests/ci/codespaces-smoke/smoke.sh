@@ -192,7 +192,7 @@ check_command synth 1200 booley flow synth --target synth_core
 check_command goalsets 300 env GOALSET_CHECK_REQUIRE_BOOLEY=1 PICORV32_ROOT="$project_root" \
     python3 -m pytest -q -p no:cacheprovider "$repo_dir/tests/ci/test_goalsets.py"
 
-# 6. The own-account paths in CODESPACES.md: a visitor's own credential beats
+# 6. The own-account paths in START-HERE.md: a visitor's own credential beats
 # the gateway once the registrar re-runs. Placeholder login files stand in for
 # `codex login --device-auth` and `claude auth login`; no request is sent.
 # Each case checks the published choice (the gateway policy gives way to the

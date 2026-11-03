@@ -10,7 +10,7 @@ runs on your own GitHub account's free monthly Codespaces quota (about 30
 hours a month on a free account), and the agent runs GPT-6 Luna on the Booley
 maintainer's account after a GitHub sign-in. You can use your own
 Claude or ChatGPT account instead. The first launch takes 3-4 minutes while
-the container image builds. [CODESPACES.md](CODESPACES.md) opens automatically
+the container image builds. [START-HERE.md](START-HERE.md) opens automatically
 and walks you through signing in and the first five minutes.
 
 ## Quick start
@@ -79,7 +79,7 @@ The demo's headline Goal adds the RISC-V Zbb extension to PicoRV32 with the
 `zbb` Goalset: ask the agent to "Create a new zbb worktree and use
 /booley-goal with the zbb Goalset to implement the design described in
 .booley/specs/zbb-design.md". Step
-4 of [CODESPACES.md](CODESPACES.md#4-main-event-add-a-risc-v-extension-in-goal-mode)
+4 of [START-HERE.md](START-HERE.md#4-main-event-add-a-risc-v-extension-in-goal-mode)
 walks through it, locally as well as in a Codespace. For a change of your own:
 
 1. In a container terminal, create a worktree for the change:
