@@ -45,6 +45,7 @@ The change adds:
 ## Scope
 
 This change may edit the upstream testbenches, `Makefile`, firmware and
-tests, and the Project's cores, `tests.toml` and post-setup hook. Commit
-both repositories in the worktree (the upstream checkout and its `.booley`)
-before finishing.
+tests, and the Project's cores and `tests.toml`. Goal Mode protects the
+post-setup hook, so put any Zbb build-flag change in the `Makefile` or the
+test sources instead. Commit both repositories in the worktree (the upstream
+checkout and its `.booley`) before finishing.
