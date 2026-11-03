@@ -102,9 +102,21 @@ your own key: $BYO_URL"
 in a few minutes."
   fi
   ((INTERVAL >= MIN_INTERVAL)) || INTERVAL=$MIN_INTERVAL
-  printf 'Open %s and enter the code: %s\n' "$uri" "$user_code"
-  printf 'GitHub will ask you to share your public profile with "Booley demo".\n'
-  printf 'Waiting for approval...\n'
+  # Spell the steps out and make the link and code stand out: visitors missed
+  # the one-line prompt and sat at "Waiting for approval..." without knowing
+  # GitHub was waiting on them. Color only on a terminal, and never with NO_COLOR.
+  local hi="" off="" rule
+  if [[ -t 1 && -z ${NO_COLOR:-} ]]; then
+    hi=$'\e[1;30;43m ' off=$' \e[0m'
+  fi
+  rule="$(printf '%*s' 64 '' | tr ' ' '=')"
+  printf '\n%s\n' "$rule"
+  printf '  Sign in with GitHub to get your token:\n\n'
+  printf '  1. Open      %s%s%s\n' "$hi" "$uri" "$off"
+  printf '  2. Enter     %s%s%s\n' "$hi" "$user_code" "$off"
+  printf '  3. Click Authorize (GitHub shares only your public profile)\n'
+  printf '%s\n\n' "$rule"
+  printf 'Waiting for you to authorize on GitHub (Ctrl+C to cancel)...\n'
 }
 
 # The next poll interval after slow_down: GitHub's new value, else +5 s.

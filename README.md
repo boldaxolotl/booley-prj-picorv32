@@ -50,64 +50,98 @@ booley doctor --deep
 There shouldn't be any Doctor warnings. If any appear, use the `/booley-heal`
 skill to resolve them.
 
-## Explore in Interactive Mode first
+## Try the demo
 
-Start the Project's configured Codex or Claude Code chat from the container
-terminal:
+The demo is the same here as in a Codespace (steps 3 to 5 of
+[START-HERE.md](START-HERE.md)): run Flows one at a time, hand the agent the
+prepared Zbb Goal, then experiment on your own.
 
-```bash
-booley
-```
+### 1. Ask the agent to run things
 
-Bare `booley` is the short form of `booley chat`; both open the configured
-agent (Claude Code unless you set `[agent].provider`). Then ask the agent to show how the project,
-Targets, and Booley Flows fit together. For example:
+<!-- demo-flow:run-things (START-HERE.md and README.md share this text; tests/ci check it) -->
+Start a chat with `booley` and try these, one at a time:
 
-> Check the PicoRV32 project status, explain the available Targets, then run a
-> lint or simulation Flow and walk me through the result.
+> Check the project status and explain the available Targets.
 
-Interactive Mode is the easiest way to learn the demo: you choose each next
-step and can ask questions as the agent inspects or runs the design.
+> Run the sim_core simulation.
 
-## Then try Goal Mode
+> Open the sim_core waveform and show me the first few instruction fetches
+> on the memory interface.
 
-Goal Mode gives one agent session mandatory Goals that only Booley Flow and
-Specialist evidence can meet. Each session works in its own linked worktree,
-so `main` stays untouched while it runs.
+> Synthesize synth_core and report its area and maximum clock frequency.
 
-The demo's headline Goal adds the RISC-V Zbb extension to PicoRV32 with the
-`zbb` Goalset: ask the agent to "Create a new zbb worktree and use
-/booley-goal with the zbb Goalset to implement the design described in
-.booley/specs/zbb-design.md". Step
-4 of [START-HERE.md](START-HERE.md#4-main-event-add-a-risc-v-extension-in-goal-mode)
-walks through it, locally as well as in a Codespace. For a change of your own:
+The agent runs Booley Flows for each request, so the answers come from real
+tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
+Booley Dashboard tab shows runs as they happen.
+<!-- /demo-flow -->
 
-1. In a container terminal, create a worktree for the change:
+### 2. Main event: add a RISC-V extension in Goal Mode
 
-   ```bash
-   booley worktree new my-change
-   ```
+<!-- demo-flow:goal-mode (START-HERE.md and README.md share this text; tests/ci check it) -->
+Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
+extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
+PicoRV32. Goal Mode gives the agent Goals that only real tool results can
+meet, and the `zbb` Goalset fixes them in advance:
 
-2. In a Codex or Claude Code chat, ask the agent to use the `booley-goal`
-   skill (`/booley-goal` in Claude Code) in that worktree. For example:
+- the lint, both bus regressions and a new "Zbb disabled" testbench pass;
+- bug, testbench and spec reviews come back clean, the spec review judging
+  the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
+- synthesis grows by at most 11% in cells and 3% in critical path.
 
-   > Use the booley-goal skill in the my-change worktree to add a small,
-   > opt-in PicoRV32 feature and verify its disabled behavior.
+What to build, and which tests to add, is in the design file
+`.booley/specs/zbb-design.md`.
 
-   The agent proposes Goals from the Project's Goalsets in
-   `.booley/goalsets/` (`feature`, `bugfix`, `refactor`,
-   `verification`, `zbb`) plus any you ask for, and shows them before entering.
+Start a chat with `booley` and ask:
 
-3. The agent runs Booley Flows and Specialists until every Goal has fresh
-   evidence. Check progress with `booley goal status` in the worktree or
-   `booley dashboard`.
+> Create a new zbb worktree and use /booley-goal with the zbb Goalset to
+> implement the design described in .booley/specs/zbb-design.md
 
-4. Finish returns a Review Package: the diff, Goal evidence, and any Goal
-   changes you approved. The Goal Branch and worktree stay in place; merging
-   is your call.
+The agent creates the worktree first, so `main` stays untouched. Then it
+lists the eight Goals and asks you to confirm before it starts. After that
+it works on its own: it writes the RTL, firmware test and
+testbench, runs the Flows and reviews, and fixes what they find. Expect
+about half an hour of your agent's usage: the demo allowance in a Codespace,
+or your own Claude or ChatGPT plan.
+
+Follow along while it works:
+
+- `booley goal status`, run in `.booley/worktrees/zbb`, lists each Goal as
+  met or unmet with its latest evidence.
+- The Booley Dashboard tab shows the same Goals and every Flow run live.
+
+When every Goal is met, the agent finishes and gives you the path of the
+**Review Package**: the diff against the starting commit, the evidence
+behind each Goal, the review findings, and the Target changes (such as the
+new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
+again later. The work stays on its own Goal Branch; merging it is your call.
 
 See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
-for Goalsets, threshold Goals, approvals, and recovery.
+in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
+<!-- /demo-flow -->
+
+### 3. Build whatever you want
+
+<!-- demo-flow:experiment (START-HERE.md and README.md share this text; tests/ci check it) -->
+Some ideas to try next:
+
+- Add another extension, such as Zba, Zbs, or an instruction of your own.
+- Make the core smaller or faster.
+- Strengthen the verification: more tests, coverage, or a stricter
+  testbench.
+- Delete PicoRV32 and build your own design from scratch. The agent updates
+  the Targets in `.booley/cores` to match.
+
+Each idea works like the Zbb Goal: ask for a new worktree and Goal Mode,
+and say what you want. Pick the Goalset that fits from `.booley/goalsets/`
+(`feature`, `bugfix`, `refactor` or `verification`), or ask for Goals of
+your own. For example:
+
+> Create a new zba worktree and use /booley-goal with the feature Goalset to
+> add the RISC-V Zba extension to PicoRV32
+
+For a bigger change, write the design down in a Markdown file first and
+point the agent at it, as the Zbb Goal does.
+<!-- /demo-flow -->
 
 ## About this demo
 
@@ -122,14 +156,6 @@ Booley projects.
 Booley keeps its configuration in this separate repository. Setup adds only
 ignored files and local guidance links to the PicoRV32 checkout; no tracked
 upstream file is modified.
-
-## Experiment with the demo
-
-Explore interactively first: measure area and performance, find critical paths,
-or ask the agent to explain a configuration. Then enter Goal Mode when you want
-an agent to carry a well-defined change through to verified Goals—optimize
-the design, fix a bug, add a RISC-V extension, or even try making the CPU
-pipelined. See how far you can push the models, the design, and Booley itself.
 
 ## Targets
 
