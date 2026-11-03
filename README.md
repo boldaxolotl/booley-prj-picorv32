@@ -122,22 +122,17 @@ in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
 ### 3. Build whatever you want
 
 <!-- demo-flow:experiment (START-HERE.md and README.md share this text; tests/ci check it) -->
-Some ideas to try next:
+Some ideas to try next, in Interactive Mode or Goal Mode:
 
-- Add another extension, such as Zba, Zbs, or an instruction of your own.
+- Add a custom instruction, such as a one-cycle CRC-32 step, and firmware
+  that uses it to checksum a buffer.
+- Add a peripheral on the memory bus, such as a UART or a GPIO block, and
+  firmware that drives it.
 - Make the core smaller or faster.
 - Strengthen the verification: more tests, coverage, or a stricter
   testbench.
 - Delete PicoRV32 and build your own design from scratch. The agent updates
   the Targets in `.booley/cores` to match.
-
-Each idea works like the Zbb Goal: ask for a new worktree and Goal Mode,
-and say what you want. Pick the Goalset that fits from `.booley/goalsets/`
-(`feature`, `bugfix`, `refactor` or `verification`), or ask for Goals of
-your own. For example:
-
-> Create a new zba worktree and use /booley-goal with the feature Goalset to
-> add the RISC-V Zba extension to PicoRV32
 
 For a bigger change, write the design down in a Markdown file first and
 point the agent at it, as the Zbb Goal does.
