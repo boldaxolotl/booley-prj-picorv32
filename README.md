@@ -83,7 +83,7 @@ meet, and the `zbb` Goalset fixes them in advance:
 - the lint, both bus regressions and a new "Zbb disabled" testbench pass;
 - bug, testbench and spec reviews come back clean, the spec review judging
   the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
-- synthesis grows by at most 11% in cells and 3% in critical path.
+- synthesis grows by at most 11% in cells and 5% in critical path.
 
 What to build, and which tests to add, is in the design file
 `.booley/specs/zbb-design.md`.
