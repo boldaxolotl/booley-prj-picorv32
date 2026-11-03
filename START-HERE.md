@@ -29,7 +29,7 @@ again.
 
 Each GitHub account gets $1 of demo usage per month. GPT-6 Luna is cheap, so
 that's about 1.5 hours of the agent working nonstop, or about three runs of
-the step 4 Goal (about $0.35 each). Normal back-and-forth use lasts longer. A
+the Zbb Goal (about $0.35 each). Normal back-and-forth use lasts longer. A
 token lasts 30 days, and one GitHub account can hold 3 at a time.
 
 Luna is a small model: capable enough for this demo, but not as strong as
@@ -84,87 +84,11 @@ booley doctor
 No check should fail once you have a demo token or have signed in; before
 that, the agent credential check fails.
 
-## 3. Ask the agent to run things
+## 3. Try the demo
 
-<!-- demo-flow:run-things (START-HERE.md and README.md share this text; tests/ci check it) -->
-Start a chat with `booley` and try these, one at a time:
-
-> Check the project status and explain the available Targets.
-
-> Run the sim_core simulation.
-
-> Open the sim_core waveform and show me the first few instruction fetches
-> on the memory interface.
-
-> Synthesize synth_core and report its area and maximum clock frequency.
-
-The agent runs Booley Flows for each request, so the answers come from real
-tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
-Booley Dashboard tab shows runs as they happen.
-<!-- /demo-flow -->
-
-## 4. Main event: add a RISC-V extension in Goal Mode
-
-<!-- demo-flow:goal-mode (START-HERE.md and README.md share this text; tests/ci check it) -->
-Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
-extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
-PicoRV32. Goal Mode gives the agent Goals that only real tool results can
-meet, and the `zbb` Goalset fixes them in advance:
-
-- the lint, both bus regressions and a new "Zbb disabled" testbench pass;
-- bug, testbench and spec reviews come back clean, the spec review judging
-  the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
-- synthesis grows by at most 11% in cells and 3% in critical path.
-
-What to build, and which tests to add, is in the design file
-`.booley/specs/zbb-design.md`.
-
-Start a chat with `booley` and ask:
-
-> Create a new zbb worktree and use /booley-goal with the zbb Goalset to
-> implement the design described in .booley/specs/zbb-design.md
-
-The agent creates the worktree first, so `main` stays untouched. Then it
-lists the eight Goals and asks you to confirm before it starts. After that
-it works on its own: it writes the RTL, firmware test and
-testbench, runs the Flows and reviews, and fixes what they find. Expect
-about half an hour of your agent's usage: the demo allowance in a Codespace,
-or your own Claude or ChatGPT plan.
-
-Follow along while it works:
-
-- `booley goal status`, run in `.booley/worktrees/zbb`, lists each Goal as
-  met or unmet with its latest evidence.
-- The Booley Dashboard tab shows the same Goals and every Flow run live.
-
-When every Goal is met, the agent finishes and gives you the path of the
-**Review Package**: the diff against the starting commit, the evidence
-behind each Goal, the review findings, and the Target changes (such as the
-new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
-again later. The work stays on its own Goal Branch; merging it is your call.
-
-See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
-in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
-<!-- /demo-flow -->
-
-## 5. Build whatever you want
-
-<!-- demo-flow:experiment (START-HERE.md and README.md share this text; tests/ci check it) -->
-Some ideas to try next, in Interactive Mode or Goal Mode:
-
-- Add a custom instruction, such as a one-cycle CRC-32 step, and firmware
-  that uses it to checksum a buffer.
-- Add a peripheral on the memory bus, such as a UART or a GPIO block, and
-  firmware that drives it.
-- Make the core smaller or faster.
-- Strengthen the verification: more tests, coverage, or a stricter
-  testbench.
-- Delete PicoRV32 and build your own design from scratch. The agent updates
-  the Targets in `.booley/cores` to match.
-
-For a bigger change, write the design down in a Markdown file first and
-point the agent at it, as the Zbb Goal does.
-<!-- /demo-flow -->
+Now follow [Try the demo](README.md#try-the-demo) in the README: run Flows
+one at a time, hand the agent the prepared Zbb Goal, then build whatever you
+want.
 
 Long runs can use up the demo allowance quickly;
 [sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)

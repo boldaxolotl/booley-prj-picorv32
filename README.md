@@ -11,7 +11,7 @@ hours a month on a free account), and the agent runs GPT-6 Luna on the Booley
 maintainer's account after a GitHub sign-in. You can use your own
 Claude or ChatGPT account instead. The first launch takes 3-4 minutes while
 the container image builds. [START-HERE.md](START-HERE.md) opens automatically
-and walks you through signing in and the first five minutes.
+and walks you through signing in, then sends you to [Try the demo](#try-the-demo).
 
 ## Quick start
 
@@ -52,13 +52,12 @@ skill to resolve them.
 
 ## Try the demo
 
-The demo is the same here as in a Codespace (steps 3 to 5 of
-[START-HERE.md](START-HERE.md)): run Flows one at a time, hand the agent the
-prepared Zbb Goal, then experiment on your own.
+Run Flows one at a time, hand the agent the prepared Zbb Goal, then
+experiment on your own. In a Codespace, finish steps 1 and 2 of
+[START-HERE.md](START-HERE.md) first.
 
 ### 1. Ask the agent to run things
 
-<!-- demo-flow:run-things (START-HERE.md and README.md share this text; tests/ci check it) -->
 Start a chat with `booley` and try these, one at a time:
 
 > Check the project status and explain the available Targets.
@@ -73,11 +72,9 @@ Start a chat with `booley` and try these, one at a time:
 The agent runs Booley Flows for each request, so the answers come from real
 tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
 Booley Dashboard tab shows runs as they happen.
-<!-- /demo-flow -->
 
 ### 2. Main event: add a RISC-V extension in Goal Mode
 
-<!-- demo-flow:goal-mode (START-HERE.md and README.md share this text; tests/ci check it) -->
 Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
 extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
 PicoRV32. Goal Mode gives the agent Goals that only real tool results can
@@ -117,11 +114,9 @@ again later. The work stays on its own Goal Branch; merging it is your call.
 
 See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
 in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
-<!-- /demo-flow -->
 
 ### 3. Build whatever you want
 
-<!-- demo-flow:experiment (START-HERE.md and README.md share this text; tests/ci check it) -->
 Some ideas to try next, in Interactive Mode or Goal Mode:
 
 - Add a custom instruction, such as a one-cycle CRC-32 step, and firmware
@@ -136,7 +131,6 @@ Some ideas to try next, in Interactive Mode or Goal Mode:
 
 For a bigger change, write the design down in a Markdown file first and
 point the agent at it, as the Zbb Goal does.
-<!-- /demo-flow -->
 
 ## About this demo
 
