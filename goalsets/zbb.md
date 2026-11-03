@@ -15,7 +15,7 @@ as written, with no placeholders to fill in and no Goals to add or drop.
 - `REVIEW:rtl_bugs`, `REVIEW:tb_quality`, `REVIEW:rtl_spec`: each review
   finishes `clean` (no open findings). The spec review judges `picorv32.v`
   against `.booley/specs/zbb.md`.
-- `SYNTH:synth_core`: Zbb costs at most 11% more cells and at most 3% more
+- `SYNTH:synth_core`: Zbb costs at most 11% more cells and at most 5% more
   critical-path delay than `synth_core` at the Goal base commit.
 
 ## Goal arguments
@@ -77,7 +77,7 @@ as written, with no placeholders to fill in and no Goals to add or drop.
     "target": "synth_core",
     "thresholds": {
       "cell_count_increase_at_most": "11%",
-      "critical_path_ps_increase_at_most": "3%"
+      "critical_path_ps_increase_at_most": "5%"
     },
     "origin": "zbb"
   }

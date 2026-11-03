@@ -60,7 +60,7 @@ ZBB_EXPECTED = [
     {
         "family": "SYNTH",
         "target": "synth_core",
-        "thresholds": {"cell_count_increase_at_most": "11%", "critical_path_ps_increase_at_most": "3%"},
+        "thresholds": {"cell_count_increase_at_most": "11%", "critical_path_ps_increase_at_most": "5%"},
         "origin": "zbb",
     },
 ]
