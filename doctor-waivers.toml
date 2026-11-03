@@ -30,3 +30,11 @@ expires = 2027-10-30
 check = "sandbox.gitconfig-identity"
 reason = "GitHub Codespaces demo: Codespaces writes the visitor's GitHub identity to /etc/gitconfig. The spec's complete GIT_CONFIG_* override takes precedence, so that identity is only a fallback."
 expires = 2027-10-30
+
+# Unlike the waivers above, this one also matches on a local machine, where the
+# advisory is valid (a host login can revoke the Sandbox copy). Accepted: it is
+# only advice, and the Codespace is where most visitors run Doctor.
+[[waiver]]
+check = "agent.rotation-risk"
+reason = "GitHub Codespaces demo: the visitor signs in to Claude Code or Codex inside the Codespace, so the refreshing login exists only there. No host copy shares its refresh token, so no other login can revoke it mid-run."
+expires = 2027-10-30
