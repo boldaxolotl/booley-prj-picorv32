@@ -6,7 +6,7 @@ With no Claude or Codex credential of the visitor's own, Booley's
 key; the Codespace only gets a revocable per-visitor token.
 
 - `claim.sh` and `token.sh` are copied unchanged from the gateway project's
-  `client/` directory at commit `eec9d95e7154af7ab1f529c0bfbc5fa77e5cadc4`.
+  `client/` directory at commit `d768546b429cff51d77ae5f17795595f3b4ce6b5`.
   Update them by copying that directory again and changing this line.
   `claim.sh` carries the notice and its `NOTICE_VERSION`; the gateway accepts
   only the versions it lists.

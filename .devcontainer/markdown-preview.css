@@ -1,0 +1,9 @@
+/* Markdown preview tweaks for START-HERE.md in the Codespace.
+   VS Code's default inline code is dim gray text on a gray chip, which is
+   hard to read on dark themes. Keep the body text color, on a light tint. */
+:not(pre) > code {
+  color: inherit;
+  background-color: rgba(127, 127, 127, 0.18);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}

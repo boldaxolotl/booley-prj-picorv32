@@ -5,34 +5,36 @@ a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
 already installed, and the agent is free: it runs OpenAI's GPT-6 Luna on the
 Booley maintainer's account. You only need a GitHub account.
 
-The Codespace itself runs on your GitHub account's Codespaces quota. A free
-account gets 120 core-hours and 15 GB of storage a month; this Codespace uses
-4 cores, so that's about 30 hours of running time. GitHub Pro gets 180
-core-hours (about 45 hours). See
+The Codespace itself runs on your GitHub account's free Codespaces quota:
+about 30 hours a month of this 4-core Codespace. See
 [GitHub's Codespaces billing](https://docs.github.com/en/billing/concepts/product-billing/github-codespaces).
 
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
-When VS Code asks **Do you trust the authors of the files in this folder?**,
-click **Trust Folder & Continue**. That turns on the Booley Dashboard and the
-waveform viewer.
-
 ## 1. Get your free demo token
 
-Open a new terminal (`` Ctrl+Shift+` ``) and run:
+Open a new terminal: press **Ctrl+Shift+`** (the backtick key, left of
+**1**), or use the menu (☰) → **Terminal** → **New Terminal**. Run:
 
 ```bash
 booley-demo-claim
 ```
 
-Follow its prompts. Your GitHub account must be at least 30 days old. If it
-fails, run it again.
+Type `yes` to accept the notice. It then prints a GitHub link and a code
+like `ABCD-1234`: open the link, enter the code, and click **Authorize**.
+The terminal waits until you do, then prints **Done**. Your GitHub
+account must be at least 30 days old. If it fails or the code expires, run it
+again.
 
 Each GitHub account gets $1 of demo usage per month. GPT-6 Luna is cheap, so
 that's about 1.5 hours of the agent working nonstop, or about three runs of
 the step 4 Goal (about $0.35 each). Normal back-and-forth use lasts longer. A
 token lasts 30 days, and one GitHub account can hold 3 at a time.
+
+Luna is a small model: capable enough for this demo, but not as strong as
+Claude or the larger GPT models. For a stronger model, use your own account
+(below).
 
 ### Or use your own Claude or ChatGPT account
 
@@ -40,7 +42,7 @@ Your own account gets you a stronger model, within your own plan's limits
 instead of the demo allowance. Booley uses it instead of the demo token, so
 skip `booley-demo-claim` and sign in:
 
-**Claude Code.** Open a new terminal (`` Ctrl+Shift+` ``) and run:
+**Claude Code.** Open a new terminal and run:
 
 ```bash
 BROWSER=none claude auth login
@@ -80,11 +82,11 @@ booley doctor
 ```
 
 No check should fail once you have a demo token or have signed in; before
-that, the agent credential check fails. A few Codespaces-specific warnings are waived on purpose;
-`.booley/doctor-waivers.toml` says why.
+that, the agent credential check fails.
 
 ## 3. Ask the agent to run things
 
+<!-- demo-flow:run-things (START-HERE.md and README.md share this text; tests/ci check it) -->
 Start a chat with `booley` and try these, one at a time:
 
 > Check the project status and explain the available Targets.
@@ -99,9 +101,11 @@ Start a chat with `booley` and try these, one at a time:
 The agent runs Booley Flows for each request, so the answers come from real
 tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
 Booley Dashboard tab shows runs as they happen.
+<!-- /demo-flow -->
 
 ## 4. Main event: add a RISC-V extension in Goal Mode
 
+<!-- demo-flow:goal-mode (START-HERE.md and README.md share this text; tests/ci check it) -->
 Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
 extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
 PicoRV32. Goal Mode gives the agent Goals that only real tool results can
@@ -124,8 +128,8 @@ The agent creates the worktree first, so `main` stays untouched. Then it
 lists the eight Goals and asks you to confirm before it starts. After that
 it works on its own: it writes the RTL, firmware test and
 testbench, runs the Flows and reviews, and fixes what they find. Expect
-about half an hour; it draws on your demo allowance, or on your own plan's
-usage if you signed in.
+about half an hour of your agent's usage: the demo allowance in a Codespace,
+or your own Claude or ChatGPT plan.
 
 Follow along while it works:
 
@@ -139,11 +143,14 @@ behind each Goal, the review findings, and the Target changes (such as the
 new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
 again later. The work stays on its own Goal Branch; merging it is your call.
 
-See the [demo README](README.md#then-try-goal-mode) for Goal Mode in general.
+See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
+in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
+<!-- /demo-flow -->
 
 ## 5. Build whatever you want
 
-The Codespace is yours to experiment in. Some ideas:
+<!-- demo-flow:experiment (START-HERE.md and README.md share this text; tests/ci check it) -->
+Some ideas to try next:
 
 - Add another extension, such as Zba, Zbs, or an instruction of your own.
 - Make the core smaller or faster.
@@ -152,8 +159,8 @@ The Codespace is yours to experiment in. Some ideas:
 - Delete PicoRV32 and build your own design from scratch. The agent updates
   the Targets in `.booley/cores` to match.
 
-Each idea works like step 4: ask for a new worktree and Goal Mode, and say
-what you want. Pick the Goalset that fits from `.booley/goalsets/`
+Each idea works like the Zbb Goal: ask for a new worktree and Goal Mode,
+and say what you want. Pick the Goalset that fits from `.booley/goalsets/`
 (`feature`, `bugfix`, `refactor` or `verification`), or ask for Goals of
 your own. For example:
 
@@ -161,8 +168,11 @@ your own. For example:
 > add the RISC-V Zba extension to PicoRV32
 
 For a bigger change, write the design down in a Markdown file first and
-point the agent at it, as step 4 does. Long runs can use up the demo
-allowance quickly; [sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)
+point the agent at it, as the Zbb Goal does.
+<!-- /demo-flow -->
+
+Long runs can use up the demo allowance quickly;
+[sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)
 for more room.
 
 ## Good to know

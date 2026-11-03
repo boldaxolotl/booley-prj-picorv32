@@ -72,7 +72,8 @@
         "booley.dashboard.attachProtocol": 1,
         "workbench.editorAssociations": {
           "**/START-HERE.md": "vscode.markdown.preview.editor"
-        }
+        },
+        "markdown.styles": [".booley/.devcontainer/markdown-preview.css"]
       }
     },
     "codespaces": {
