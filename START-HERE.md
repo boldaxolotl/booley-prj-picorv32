@@ -2,8 +2,8 @@
 
 This Codespace is a complete Booley setup for [PicoRV32](https://github.com/YosysHQ/picorv32),
 a small open-source RISC-V CPU. Simulation, synthesis and waveform tools are
-already installed, and the agent is free: it runs OpenAI's GPT-6 Luna on the
-Booley maintainer's account. You only need a GitHub account.
+already installed, and the agent can run free on a demo token (step 1). You
+only need a GitHub account.
 
 The Codespace itself runs on your GitHub account's free Codespaces quota:
 about 30 hours a month of this 4-core Codespace. See
@@ -22,10 +22,26 @@ Dashboard starts.
 If you chose **Cancel**, click **Restricted Mode** at the left end of the
 status bar (or **Manage** in the banner at the top), then click **Trust**.
 
-## 1. Get your free demo token
+## 1. Choose how the agent runs
 
-Open a new terminal: press **Ctrl+Shift+`** (the backtick key, left of
-**1**), or use the menu (☰) → **Terminal** → **New Terminal**. Run:
+Pick one:
+
+- **Free demo token.** No account to bring: the agent runs OpenAI's GPT-6
+  Luna on the Booley maintainer's account. Each GitHub account gets $1 of demo
+  usage per month. GPT-6 Luna is cheap, so that's about 1.5 hours of the agent
+  working nonstop, or about three runs of the Zbb Goal (about $0.35 each).
+  Normal back-and-forth use lasts longer. Luna is a small model: capable
+  enough for this demo, but not as strong as Claude or the larger GPT models.
+- **Your own Claude or ChatGPT account.** A stronger model, within your own
+  plan's limits instead of the demo allowance.
+
+If you set up both, Booley uses your own account. Both start in a terminal:
+press **Ctrl+Shift+`** (the backtick key, left of **1**), or use the menu
+(☰) → **Terminal** → **New Terminal**.
+
+### Option A: Free demo token
+
+In a terminal, run:
 
 ```bash
 booley-demo-claim
@@ -37,22 +53,13 @@ The terminal waits until you do, then prints **Done**. Your GitHub
 account must be at least 30 days old. If it fails or the code expires, run it
 again.
 
-Each GitHub account gets $1 of demo usage per month. GPT-6 Luna is cheap, so
-that's about 1.5 hours of the agent working nonstop, or about three runs of
-the Zbb Goal (about $0.35 each). Normal back-and-forth use lasts longer. A
-token lasts 30 days, and one GitHub account can hold 3 at a time.
+A token lasts 30 days, and one GitHub account can hold 3 at a time.
 
-Luna is a small model: capable enough for this demo, but not as strong as
-Claude or the larger GPT models. For a stronger model, use your own account
-(below).
+### Option B: Your own Claude or ChatGPT account
 
-### Or use your own Claude or ChatGPT account
+Sign in with one of the two.
 
-Your own account gets you a stronger model, within your own plan's limits
-instead of the demo allowance. Booley uses it instead of the demo token, so
-skip `booley-demo-claim` and sign in:
-
-**Claude Code.** Open a new terminal and run:
+**Claude Code.** In a terminal, run:
 
 ```bash
 BROWSER=none claude auth login
@@ -64,7 +71,7 @@ press Enter. Use each link once: if sign-in fails, run the command again for a
 fresh link. (`BROWSER=none` stops Claude Code from also opening a tab that
 returns to a `localhost` address, which a browser Codespace can't reach.)
 
-**Codex.** Open a terminal and run:
+**Codex.** In a terminal, run:
 
 ```bash
 codex login --device-auth
@@ -102,7 +109,7 @@ one at a time, hand the agent the prepared Zbb Goal, then build whatever you
 want.
 
 Long runs can use up the demo allowance quickly;
-[sign in with your own account](#or-use-your-own-claude-or-chatgpt-account)
+[sign in with your own account](#option-b-your-own-claude-or-chatgpt-account)
 for more room.
 
 ## Good to know
