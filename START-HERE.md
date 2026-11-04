@@ -121,4 +121,4 @@ for more room.
   deletes the token; run `booley-demo-claim` to get a new one.
 - Your PicoRV32 edits live in `/workspaces/picorv32` and survive a rebuild.
 - To run Booley on your own machine instead, see the
-  [demo README](README.md#quick-start).
+  [demo README](README.md#quick-start-local-install).

@@ -13,7 +13,10 @@ Claude or ChatGPT account instead. The first launch takes 3-4 minutes while
 the container image builds. [START-HERE.md](START-HERE.md) opens automatically
 and walks you through signing in, then sends you to [Try the demo](#try-the-demo).
 
-## Quick start
+## Quick start (local install)
+
+This section installs Booley on your own machine. In a Codespace, everything
+is already installed: skip to [Try the demo](#try-the-demo).
 
 Needs Booley 0.5.0 or later.
 
