@@ -12,6 +12,16 @@ about 30 hours a month of this 4-core Codespace. See
 The folder open on the left is the PicoRV32 source. Its `.booley` folder is
 your copy of the Booley demo configuration.
 
+## Trust the folder first
+
+When the Codespace opens, VS Code asks **Do you trust the authors of the files
+in this folder?** Choose **Trust Folder & Continue**. Until you do, VS Code
+runs in Restricted Mode: you can read this page, but no terminal or Booley
+Dashboard starts.
+
+If you chose **Cancel**, click **Restricted Mode** at the left end of the
+status bar (or **Manage** in the banner at the top), then click **Trust**.
+
 ## 1. Get your free demo token
 
 Open a new terminal: press **Ctrl+Shift+`** (the backtick key, left of
@@ -81,8 +91,9 @@ In the terminal:
 booley doctor
 ```
 
-No check should fail once you have a demo token or have signed in; before
-that, the agent credential check fails.
+No check should fail. Until you have a demo token or have signed in, Doctor
+warns that the agent credential is missing; the warning goes away once you
+do.
 
 ## 3. Try the demo
 
