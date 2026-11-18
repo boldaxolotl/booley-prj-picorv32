@@ -15,7 +15,7 @@ and walks you through signing in, then sends you to [Try the demo](#try-the-demo
 
 ## Quick start
 
-Needs Booley 0.3.0 or later.
+Needs Booley 0.5.0 or later.
 
 [Install Booley](https://github.com/boldaxolotl/Booley#installation) (including `booley bootstrap`), then clone both repositories:
 
@@ -25,13 +25,25 @@ cd picorv32
 git clone https://github.com/boldaxolotl/booley-prj-picorv32 .booley
 ```
 
-The default agent provider is Claude Code. To use Codex, add
-`[agent] provider = "codex"` to `.booley/booley.toml` before initialization.
+The demo's default Agent CLI is Codex, so sign in to Codex first
+(`codex login`, or an OpenAI API key in your shell). Claude Code is listed too:
+open it with `booley chat --cli claude`. To make it the default, set
+`default = "claude"` in `[agent]` of `.booley/booley.toml` before
+initialization.
 
 Initialize the project on the host:
 
 ```bash
 booley init
+```
+
+`booley init` records your agent sign-in choice (`auth`) in
+`.booley/booley.toml`. Review the change and commit it in the `.booley`
+checkout:
+
+```bash
+git -C .booley diff
+git -C .booley commit -am "Record my Booley agent setup"
 ```
 
 Open the `picorv32` folder in VS Code. A popup notification should offer
@@ -47,8 +59,11 @@ bash .booley/hooks/post-setup.sh
 booley doctor --deep
 ```
 
-There shouldn't be any Doctor warnings. If any appear, use the `/booley-heal`
-skill to resolve them.
+There shouldn't be any Doctor warnings. The demo sets `[sandbox] memory =
+"8g"`, which fits the 16 GB demo Codespace and most laptops. If Doctor warns
+that `[sandbox].memory` plus swap is more than your machine has, lower
+`memory` in `.booley/booley.toml`. For any other warning, use the
+`/booley-heal` skill.
 
 ## Try the demo
 
@@ -144,7 +159,8 @@ Booley projects.
 
 Booley keeps its configuration in this separate repository. Setup adds only
 ignored files and local guidance links to the PicoRV32 checkout; no tracked
-upstream file is modified.
+upstream file is modified. In this repository, your `.booley` clone, setup
+records only your agent sign-in choice, which the Quick start has you commit.
 
 ## Targets
 

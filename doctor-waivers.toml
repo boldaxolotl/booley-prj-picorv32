@@ -31,6 +31,15 @@ check = "sandbox.gitconfig-identity"
 reason = "GitHub Codespaces demo: Codespaces writes the visitor's GitHub identity to /etc/gitconfig. The spec's complete GIT_CONFIG_* override takes precedence, so that identity is only a fallback."
 expires = 2027-10-30
 
+# Both Agent CLIs are listed in booley.toml, but the demo needs only Codex, the
+# default. This also matches on a local machine: someone without a Claude Code
+# login must not see a warning for a CLI they never open.
+[[waiver]]
+check = "agent.credential-missing"
+subject = "claude"
+reason = "PicoRV32 demo: Claude Code is the optional second Agent CLI (`booley chat --cli claude`). Codex, the default, is still checked; no [models] pin runs a Specialist on Claude Code, so nothing needs its login."
+expires = 2027-11-18
+
 # Unlike the waivers above, this one also matches on a local machine, where the
 # advisory is valid (a host login can revoke the Sandbox copy). Accepted: it is
 # only advice, and the Codespace is where most visitors run Doctor.
