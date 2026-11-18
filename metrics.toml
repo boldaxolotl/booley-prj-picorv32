@@ -1,0 +1,11 @@
+# metrics.toml - the Target Metrics that `booley measure` checks.
+#
+# Written by `booley init` with the default bounds only: they apply to a
+# `[<target>.sim]` or `[<target>.coverage]` table, and there is none yet, so
+# nothing is measured. `booley cheat --metrics` explains the file.
+
+[defaults.sim]
+tests_failed_max = 0
+
+[defaults.coverage]
+tests_failed_max = 0
