@@ -3,10 +3,11 @@
 #
 # Covers what a visitor's first five minutes depend on: the Codespaces layout,
 # the agent choice with no credential (Codex through the demo gateway), the
-# agent Git identity, Doctor, the lint, simulation and synthesis Targets, and
-# the switch to the visitor's own Codex or Claude account. Every check runs
-# even after an earlier one fails, and each prints one "SMOKE-PASS <check>" or
-# "SMOKE-FAIL <check>: <reason>" line. Exit 1 when any check failed.
+# agent Git identity, Doctor, the lint, simulation and synthesis Targets, the
+# committed Target Metrics, and the visitor's own Codex or Claude login. Every
+# check runs even after an earlier one fails, and each prints one
+# "SMOKE-PASS <check>" or "SMOKE-FAIL <check>: <reason>" line. Exit 1 when any
+# check failed.
 #
 # Usage: smoke.sh EVIDENCE_DIR
 set -uo pipefail
@@ -187,48 +188,60 @@ check_command sim-wb 1200 booley flow sim --target sim_wb
 check_command sim-dhry 1200 booley flow sim --target sim_dhry
 check_command sim-trace 1200 booley flow sim --target sim_core --trace
 check_command synth 1200 booley flow synth --target synth_core
-# The Goalsets parse with this image's Booley, and Goal Mode entry accepts the
-# zbb Goals (spec file and synthesis baseline present) in this checkout.
-check_command goalsets 300 env GOALSET_CHECK_REQUIRE_BOOLEY=1 PICORV32_ROOT="$project_root" \
-    python3 -m pytest -q -p no:cacheprovider "$repo_dir/tests/ci/test_goalsets.py"
+# The committed Target Metrics load with this image's Booley: every table
+# names a Target and a Flow it defines, and every key is a metric that Flow
+# reports. Measures nothing, so it needs no agent and no credential.
+check_command metrics-validate 300 booley measure --validate
 
-# 6. The own-account paths in START-HERE.md: a visitor's own credential beats
-# the gateway once the registrar re-runs. Placeholder login files stand in for
-# `codex login --device-auth` and `claude auth login`; no request is sent.
-# Each case checks the published choice (the gateway policy gives way to the
-# shipped BOOLEY_PRIMARY_AUTH=auto) and the app `booley chat` starts, since
-# Codex alone would start in sponsored mode too.
+# 6. The own-account paths in START-HERE.md: a visitor's own Codex login beats
+# the gateway once the registrar re-runs, and Codex stays the default Agent CLI
+# ([agent] default) when Claude Code is signed in too. Placeholder login files
+# stand in for `codex login --device-auth` and `claude auth login`; no request
+# is sent. Each case checks the published credential policy (the gateway gives
+# way to the shipped BOOLEY_PRIMARY_AUTH=auto) and the app each `booley chat`
+# form starts.
 register() {
     (cd "$project_root" && python -m booley.harness.incontainer_register) >> "$evidence_dir/own-account-register.txt" 2>&1
 }
-# own_account_case NAME EXPECTED_CHOICE CHAT_MARKER
-own_account_case() {
-    local name=$1 expected=$2 marker=$3 got launched
-    register
-    got=$(read_choice)
-    launched=$(cd "$project_root" && timeout 60 booley chat -- --version 2>&1)
+# launches NAME MARKER [CHAT_ARGS...]: `booley chat [CHAT_ARGS...]` starts the
+# app whose `--version` output contains MARKER.
+launches() {
+    local name=$1 marker=$2 launched
+    shift 2
+    launched=$(cd "$project_root" && timeout 60 booley chat "$@" -- --version 2>&1)
     echo "$launched" > "$evidence_dir/$name-chat.txt"
-    if [[ $got != "$expected" ]]; then
-        fail "$name" "expected choice $expected after re-registering, got: $got"
-    elif [[ $launched != *"$marker"* ]]; then
-        fail "$name" "booley chat did not start the expected app: $launched"
-    else
-        pass "$name"
-    fi
+    [[ $launched == *"$marker"* ]] || { echo "$launched"; return 1; }
 }
+codex_marker="codex-cli "
+claude_marker="(Claude Code)"
 codex_auth="$HOME/.codex/auth.json"
 claude_auth="$HOME/.claude/.credentials.json"
 if [[ -e $codex_auth || -e $claude_auth ]]; then
     fail own-account "an agent login file already exists; refusing to overwrite it"
 else
     mkdir -p "$(dirname "$codex_auth")" "$(dirname "$claude_auth")"
-    # Codex login: Codex with the visitor's account, not the gateway.
+    # Codex login: Codex on the visitor's account, not the gateway.
     printf '{"tokens":{"access_token":"smoke-placeholder","refresh_token":"smoke-placeholder"}}\n' > "$codex_auth"
-    own_account_case codex-switch "codex|auto" "codex-cli "
-    # Claude login as well: Claude wins over Codex ("if both are signed in, it
-    # picks Claude Code").
+    register
+    got=$(read_choice)
+    if [[ $got != *"|visitor" ]]; then
+        fail codex-switch "expected the visitor policy after re-registering, got: $got"
+    elif ! out=$(launches codex-switch "$codex_marker"); then
+        fail codex-switch "booley chat did not start Codex: $out"
+    else
+        pass codex-switch
+    fi
+    # Claude login as well: plain `booley chat` stays on Codex, and
+    # `booley chat --cli claude` starts Claude Code.
     printf '{"claudeAiOauth":{"accessToken":"smoke-placeholder","refreshToken":"smoke-placeholder"}}\n' > "$claude_auth"
-    own_account_case claude-switch "claude|auto" "(Claude Code)"
+    register
+    if ! out=$(launches claude-default "$codex_marker"); then
+        fail claude-login "plain booley chat left Codex: $out"
+    elif ! out=$(launches claude-cli "$claude_marker" --cli claude); then
+        fail claude-login "booley chat --cli claude did not start Claude Code: $out"
+    else
+        pass claude-login
+    fi
     # Both logins gone: the next registration falls back to the gateway.
     rm -f "$codex_auth" "$claude_auth"
     register

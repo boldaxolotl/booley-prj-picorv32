@@ -19,13 +19,13 @@ five minutes depend on:
   and with a stand-in demo token (no FAIL, the gateway credential passes),
   each with no warning but the expected ones; `booley targets`; and the
   `lint_core`, `sim_core`, `sim_wb`, `sim_dhry` (plus `sim_core` with
-  `--trace`) and `synth_core` Targets. It runs
-  `tests/ci/test_goalsets.py` with the image's Booley: every Goalset parses,
-  and Goal Mode entry accepts the `zbb` Goals in the checkout. Last, it checks
-  the own-account switch: after a stand-in Codex login and a registrar re-run,
-  the choice is `codex|auto` and `booley chat` starts Codex; with a stand-in
-  Claude login as well it is `claude|auto` and `booley chat` starts Claude
-  Code; with both removed it falls back to `codex|gateway`.
+  `--trace`) and `synth_core` Targets. It runs `booley measure --validate`,
+  so the committed `metrics.toml` loads with the image's Booley. Last, it checks
+  the own-account logins: after a stand-in Codex login and a registrar re-run,
+  the credential policy is `visitor` and `booley chat` starts Codex; with a
+  stand-in Claude login as well, `booley chat` still starts Codex and
+  `booley chat --cli claude` starts Claude Code; with both removed it falls
+  back to `codex|gateway`.
 
 No credential is used, and no request reaches the real gateway: the run
 clears agent credential variables from its own environment before booting,

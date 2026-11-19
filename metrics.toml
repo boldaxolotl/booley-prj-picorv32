@@ -1,11 +1,29 @@
-# metrics.toml - the Target Metrics that `booley measure` checks.
-#
-# Written by `booley init` with the default bounds only: they apply to a
-# `[<target>.sim]` or `[<target>.coverage]` table, and there is none yet, so
-# nothing is measured. `booley cheat --metrics` explains the file.
+# metrics.toml - the Target Metrics that `booley measure` checks, in a clean
+# checkout of the commit it measures. `booley cheat --metrics` explains the
+# file. Bounds are absolute; a limit relative to the starting commit, such as
+# the Zbb change's cell and critical-path growth, goes in the request instead
+# (README, "Main event").
 
 [defaults.sim]
 tests_failed_max = 0
 
 [defaults.coverage]
 tests_failed_max = 0
+
+# Every simulation Target runs all its tests with none failing (the default
+# bound above).
+[sim_core.sim]
+
+[sim_wb.sim]
+
+[sim_dhry.sim]
+
+[lint_core.lint]
+errors_max = 0
+track = ["warnings"]
+
+# Reported in every measurement, never judged: the Measurement Report's Δ
+# column shows how far a change moved them. synth_core has one clock, so the
+# per-clock metric needs no clock prefix.
+[synth_core.synth]
+track = ["cell_count", "area_um2", "critical_path_ps", "fmax_mhz"]

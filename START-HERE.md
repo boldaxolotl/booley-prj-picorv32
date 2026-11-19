@@ -29,15 +29,18 @@ Pick one:
 - **Free demo token.** No account to bring: the agent runs OpenAI's GPT-6
   Luna on the Booley maintainer's account. Each GitHub account gets $1 of demo
   usage per month. GPT-6 Luna is cheap, so that's about 1.5 hours of the agent
-  working nonstop, or about three runs of the Zbb Goal (about $0.35 each).
+  working nonstop, or about three runs of the Zbb change (about $0.35 each).
+  <!-- TODO(#4982): restate the per-run cost measured on the 0.5.0 image. -->
   Normal back-and-forth use lasts longer. Luna is a small model: capable
   enough for this demo, but not as strong as Claude or the larger GPT models.
-- **Your own Claude or ChatGPT account.** A stronger model, within your own
-  plan's limits instead of the demo allowance.
+- **Your own ChatGPT account.** A stronger model, within your own plan's
+  limits instead of the demo allowance.
 
-If you set up both, Booley uses your own account. Both start in a terminal:
-press **Ctrl+Shift+`** (the backtick key, left of **1**), or use the menu
-(☰) → **Terminal** → **New Terminal**.
+The agent is Codex either way. If you set up both, it runs on your ChatGPT
+account. Both start in a terminal: press **Ctrl+Shift+`** (the backtick key,
+left of **1**), or use the menu (☰) → **Terminal** → **New Terminal**.
+<!-- TODO(#4982): confirm on the 0.5.0 image that a ChatGPT login wins over
+the demo token. -->
 
 ### Option A: Free demo token
 
@@ -55,11 +58,32 @@ again.
 
 A token lasts 30 days, and one GitHub account can hold 3 at a time.
 
-### Option B: Your own Claude or ChatGPT account
+### Option B: Your own ChatGPT account
 
-Sign in with one of the two.
+In a terminal, run:
 
-**Claude Code.** In a terminal, run:
+```bash
+codex login --device-auth
+```
+
+Open the link it prints, sign in with your ChatGPT account, and enter the
+one-time code it shows. Then switch the agent to your account:
+
+```bash
+python -m booley.harness.incontainer_register
+```
+
+<!-- TODO(#4982): keep the registrar step only if the 0.5.0 image needs it
+for the login to take effect. -->
+
+The sign-in lasts until the Codespace's container is rebuilt; stopping and
+restarting the Codespace keeps it.
+
+<details markdown>
+<summary>With Claude Code</summary>
+
+The agent runs on Codex, but you can also chat with Claude Code on your own
+Claude account. In a terminal, run:
 
 ```bash
 BROWSER=none claude auth login
@@ -70,25 +94,12 @@ shows. Paste the whole code at the `Paste code here if prompted >` prompt and
 press Enter. Use each link once: if sign-in fails, run the command again for a
 fresh link. (`BROWSER=none` stops Claude Code from also opening a tab that
 returns to a `localhost` address, which a browser Codespace can't reach.)
+Then run `python -m booley.harness.incontainer_register`, as for Codex.
 
-**Codex.** In a terminal, run:
+Start Claude Code with `booley chat --cli claude`. A plain `booley` or
+`booley chat` still opens Codex.
 
-```bash
-codex login --device-auth
-```
-
-Open the link it prints, sign in with your ChatGPT account, and enter the
-one-time code it shows.
-
-Then switch Booley to your account (if both are signed in, it picks Claude
-Code):
-
-```bash
-python -m booley.harness.incontainer_register
-```
-
-Either sign-in lasts until the Codespace's container is rebuilt; stopping and
-restarting the Codespace keeps it.
+</details>
 
 ## 2. Check the setup
 
@@ -101,15 +112,18 @@ booley doctor
 No check should fail. Until you have a demo token or have signed in, Doctor
 warns that the agent credential is missing; the warning goes away once you
 do.
+<!-- TODO(#4982): replace with the Doctor output measured on the 0.5.0 image
+(after #5127) for an untouched Codespace, demo token only, ChatGPT only and
+Claude Code only. -->
 
 ## 3. Try the demo
 
 Now follow [Try the demo](README.md#try-the-demo) in the README: run Flows
-one at a time, hand the agent the prepared Zbb Goal, then build whatever you
-want.
+one at a time, hand the agent the prepared Zbb change, then build whatever
+you want.
 
 Long runs can use up the demo allowance quickly;
-[sign in with your own account](#option-b-your-own-claude-or-chatgpt-account)
+[sign in with your own account](#option-b-your-own-chatgpt-account)
 for more room.
 
 ## Good to know
