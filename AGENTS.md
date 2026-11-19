@@ -16,7 +16,7 @@
   `bash .booley/hooks/post-setup.sh` before simulation. Do not commit
   the generated firmware images.
 - The Booley endpoints below exist **only inside the Session Runtime** (this Project's devcontainer). They are **MCP tools, not CLI programs**: check for them in your own MCP tool list, never with `command -v booley_status` / `which` / `booley_status --help`. A `$PATH` probe always comes back empty and will make you wrongly conclude the MCP tools are missing. If your harness hides MCP tools behind a code-mode sandbox, the list is `ALL_TOOLS` — search it for `mcp__booley__booley_status`.
-- At the start of an Interactive Mode tab, call `booley_status` and show its
+- At the start of a session, call `booley_status` and show its
   status block.
 - Discover Targets with Booley instead of maintaining or relying on a Target
   list here. Use Booley Flows for RTL feedback and `booley shell -- <command>`

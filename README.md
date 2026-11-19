@@ -8,12 +8,15 @@ One click gives you a running Booley with PicoRV32 in browser VS Code: no
 local install, macOS and Windows included. It's free: the 4-core Codespace
 runs on your own GitHub account's free monthly Codespaces quota (about 30
 hours a month on a free account), and the agent runs GPT-6 Luna on the Booley
-maintainer's account after a GitHub sign-in. You can use your own
-Claude or ChatGPT account instead. The first launch takes 3-4 minutes while
-the container image builds. [START-HERE.md](START-HERE.md) opens automatically
+maintainer's account after a GitHub sign-in. You can run it on your own
+ChatGPT account instead, and chat with Claude Code on your own Claude
+account. The first launch takes 3-4 minutes while the container image builds. [START-HERE.md](START-HERE.md) opens automatically
 and walks you through signing in, then sends you to [Try the demo](#try-the-demo).
 
-## Quick start
+## Quick start (local install)
+
+This section installs Booley on your own machine. In a Codespace, everything
+is already installed: skip to [Try the demo](#try-the-demo).
 
 Needs Booley 0.5.0 or later.
 
@@ -67,7 +70,7 @@ that `[sandbox].memory` plus swap is more than your machine has, lower
 
 ## Try the demo
 
-Run Flows one at a time, hand the agent the prepared Zbb Goal, then
+Run Flows one at a time, hand the agent the prepared Zbb change, then
 experiment on your own. In a Codespace, finish steps 1 and 2 of
 [START-HERE.md](START-HERE.md) first.
 
@@ -88,51 +91,59 @@ The agent runs Booley Flows for each request, so the answers come from real
 tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
 Booley Dashboard tab shows runs as they happen.
 
-### 2. Main event: add a RISC-V extension in Goal Mode
+### 2. Main event: add a RISC-V extension and measure it
 
 Now hand the agent a real CPU change: add the RISC-V Zbb bit-manipulation
 extension (18 instructions such as `clz`, `cpop`, `rev8` and `rol`) to
-PicoRV32. Goal Mode gives the agent Goals that only real tool results can
-meet, and the `zbb` Goalset fixes them in advance:
-
-- the lint, both bus regressions and a new "Zbb disabled" testbench pass;
-- bug, testbench and spec reviews come back clean, the spec review judging
-  the RTL against the ratified Zbb chapter in `.booley/specs/zbb.md`;
-- synthesis grows by at most 11% in cells and 5% in critical path.
-
-What to build, and which tests to add, is in the design file
+PicoRV32. What to build, and which tests to add, is in the design file
 `.booley/specs/zbb-design.md`.
+
+You accept the change by its numbers, not by the agent's word. The demo's
+`.booley/metrics.toml` fixes them in advance: `lint_core` lints with no
+error, every simulation test passes, and `synth_core` reports its area and
+timing. Booley's own code runs the measurement, not the agent: every Flow,
+in a clean checkout of the commit, the same way each time.
 
 Start a chat with `booley` and ask:
 
-> Create a new zbb worktree and use /booley-goal with the zbb Goalset to
-> implement the design described in .booley/specs/zbb-design.md
+> Create a zbb worktree and implement the design in
+> .booley/specs/zbb-design.md. Zbb may cost at most 11% more cells and 5%
+> more critical-path delay on synth_core. Measure the base first, then give
+> me a Measured Commit.
 
 The agent creates the worktree first, so `main` stays untouched. Then it
-lists the eight Goals and asks you to confirm before it starts. After that
-it works on its own: it writes the RTL, firmware test and
-testbench, runs the Flows and reviews, and fixes what they find. Expect
-about half an hour of your agent's usage: the demo allowance in a Codespace,
-or your own Claude or ChatGPT plan.
+works on its own: it writes the RTL, firmware test and testbench, runs the
+Flows, and fixes what they find. When a bound is unmet, it fixes the design
+and measures again. Expect about half an hour of your agent's usage: the demo
+allowance in a Codespace, or your own ChatGPT or Claude plan.
+<!-- TODO(#4982): replace "half an hour" with the measured 0.5.0 run time. -->
 
-Follow along while it works:
+Follow along on the Booley Dashboard tab: the Sessions window shows the
+agent's session, with a `measuring` line under it while a measurement
+runs, and the Jobs window lists every Flow run.
 
-- `booley goal status`, run in `.booley/worktrees/zbb`, lists each Goal as
-  met or unmet with its latest evidence.
-- The Booley Dashboard tab shows the same Goals and every Flow run live.
+At the end the agent gives you the **Measurement Report**: a verdict line,
+each metric with its value and bound, and a Δ column against the base. A
+green header means every bound is met and the commit is Measured. The
+Δ column is where you check the 11% and 5%. On the Dashboard, `Enter` on the
+session's measurement line opens the same report.
 
-When every Goal is met, the agent finishes and gives you the path of the
-**Review Package**: the diff against the starting commit, the evidence
-behind each Goal, the review findings, and the Target changes (such as the
-new `sim_zbb_disabled`). `booley goal status` in the worktree shows that path
-again later. The work stays on its own Goal Branch; merging it is your call.
+To have the RTL checked against the ratified Zbb chapter as well, ask:
 
-See [Goal Mode](https://github.com/boldaxolotl/Booley/blob/main/docs/user/USAGE.md#goal-mode)
-in the Booley docs for Goalsets, threshold Goals, approvals and recovery.
+> Check picorv32.v against .booley/specs/zbb.md.
+
+The Reviewer reports what the RTL does that the spec doesn't ask for, or
+misses, and the agent fixes the findings you choose.
+
+The work stays on the worktree's own branch; merging it is your call.
+
+See [Metric-Driven Development](https://github.com/boldaxolotl/Booley/blob/main/docs/user/METRIC-DRIVEN-DEVELOPMENT.md)
+in the Booley docs for writing `metrics.toml`, relative targets and reading
+the report.
 
 ### 3. Build whatever you want
 
-Some ideas to try next, in Interactive Mode or Goal Mode:
+Some ideas to try next:
 
 - Add a custom instruction, such as a one-cycle CRC-32 step, and firmware
   that uses it to checksum a buffer.
@@ -145,7 +156,7 @@ Some ideas to try next, in Interactive Mode or Goal Mode:
   the Targets in `.booley/cores` to match.
 
 For a bigger change, write the design down in a Markdown file first and
-point the agent at it, as the Zbb Goal does.
+point the agent at it, as the Zbb change does.
 
 ## About this demo
 

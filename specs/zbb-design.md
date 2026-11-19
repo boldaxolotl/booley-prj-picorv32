@@ -1,8 +1,7 @@
 # Design: RV32 Zbb for PicoRV32
 
 Add the ratified RV32 Zbb 1.0 bit-manipulation extension to PicoRV32. The
-`zbb` Goalset (`.booley/goalsets/zbb.md`) holds the Goals that judge this
-change.
+Target Metrics in `.booley/metrics.toml` judge this change.
 
 ## The change
 
@@ -38,14 +37,17 @@ The change adds:
 - A self-checking `testbench_zbb_disabled.v` that executes a valid Zbb
   encoding with Zbb disabled and passes only on the expected
   illegal-instruction trap, plus a new `sim_zbb_disabled` Target for it in
-  `.booley/cores/picorv32_sim.core` and `.booley/tests.toml`.
-- `synth_core` builds with `ENABLE_ZBB=1`, so the synthesis Goal measures
-  the cost of Zbb against the RV32IMC base.
+  `.booley/cores/picorv32_sim.core` and `.booley/tests.toml`, and a
+  `[sim_zbb_disabled.sim]` table in `.booley/metrics.toml` so that every
+  measurement runs it.
+- `synth_core` builds with `ENABLE_ZBB=1`, so its measurement shows the cost
+  of Zbb against the RV32IMC base.
 
 ## Scope
 
 This change may edit the upstream testbenches, `Makefile`, firmware and
-tests, and the Project's cores and `tests.toml`. Goal Mode protects the
-post-setup hook, so put any Zbb build-flag change in the `Makefile` or the
-test sources instead. Commit both repositories in the worktree (the upstream
-checkout and its `.booley`) before finishing.
+tests, and the Project's cores, `tests.toml` and `metrics.toml`, where it
+only adds the table above. Leave the post-setup hook as it is: put any Zbb
+build-flag change in the `Makefile` or the test sources instead. Commit both
+repositories in the worktree (the upstream checkout and its `.booley`)
+before finishing.
