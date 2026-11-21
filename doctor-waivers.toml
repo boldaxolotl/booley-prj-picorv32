@@ -31,6 +31,14 @@ check = "sandbox.gitconfig-identity"
 reason = "GitHub Codespaces demo: Codespaces writes the visitor's GitHub identity to /etc/gitconfig. The spec's complete GIT_CONFIG_* override takes precedence, so that identity is only a fallback."
 expires = 2027-10-30
 
+# Like the identity waiver above, this has no subject, so it would also hide a
+# helper a local VS Code attach forwards. Accepted for the demo: the Codespace
+# is where most visitors run Doctor.
+[[waiver]]
+check = "sandbox.git-credential-helper"
+reason = "GitHub Codespaces demo: Codespaces installs a Git credential helper backed by the Codespace's own GitHub token. The Codespace is the visitor's disposable machine and that token reaches only the repositories GitHub scopes the Codespace to, so the agent being able to ask it is accepted."
+expires = 2027-11-21
+
 # Both Agent CLIs are listed in booley.toml, but the demo needs only Codex, the
 # default. This also matches on a local machine: someone without a Claude Code
 # login must not see a warning for a CLI they never open.

@@ -13,11 +13,17 @@ ignore_native_cores = true
 
 # Codex is the default Agent CLI: it runs on a local Codex login or, in GitHub
 # Codespaces, on the Booley demo gateway. Claude Code stays available with
-# `booley chat --cli claude`. `booley init` adds your `auth` policy here;
-# commit it in your clone (README Quick start).
+# `booley chat --cli claude`.
+#
+# `auth = "visitor"` is for the demo Codespace: each CLI uses the login the
+# visitor signs in with, and Codex falls back to the demo gateway. Outside a
+# hand-written Sandbox it does not apply: on a local clone, `booley init`
+# replaces it with the policy detected from your own logins; commit that change
+# in your clone (README Quick start).
 [agent]
 clis = ["codex", "claude"]
 default = "codex"
+auth = "visitor"
 
 [sandbox]
 image = "booley-sandbox-riscv"

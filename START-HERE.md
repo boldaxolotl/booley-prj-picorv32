@@ -111,7 +111,9 @@ booley doctor
 
 No check should fail. Until you have a demo token or have signed in, Doctor
 warns that the agent credential is missing; the warning goes away once you
-do.
+do. Until you run your first Flow, Doctor also warns that the stealth core
+projections are missing or stale; that Flow writes them and the warning goes
+away.
 <!-- TODO(#4982): replace with the Doctor output measured on the 0.5.0 image
 (after #5127) for an untouched Codespace, demo token only, ChatGPT only and
 Claude Code only. -->
