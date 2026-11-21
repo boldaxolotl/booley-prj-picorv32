@@ -40,9 +40,10 @@ Initialize the project on the host:
 booley init
 ```
 
-`booley init` records your agent sign-in choice (`auth`) in
-`.booley/booley.toml`. Review the change and commit it in the `.booley`
-checkout:
+`booley init` replaces the demo's `auth = "visitor"` in
+`.booley/booley.toml` with your agent sign-in choice, detected from your own
+logins. (`visitor` is the demo Codespace's setting.) Review the change and
+commit it in the `.booley` checkout:
 
 ```bash
 git -C .booley diff
