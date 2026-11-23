@@ -1,6 +1,6 @@
 {
   "name": "Booley PicoRV32 demo",
-  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:0.5.0",
+  "image": "ghcr.io/boldaxolotl/booley-sandbox-riscv:0.5.1",
   "remoteUser": "agent",
   "containerUser": "agent",
   "workspaceFolder": "/workspaces/picorv32",
