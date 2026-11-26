@@ -65,18 +65,23 @@ mkdir -p "$repo_dir"/tickets/{board,state,logs,locks}
 # TODO(boldaxolotl/booley#2500): use Booley's supported entry point.
 stamp "write agent guidance links, Stealth core projections, and the Dashboard task"
 python3 - "$PROJECT" <<'PY'
+import importlib.util
 import sys
 from pathlib import Path
 
 from booley.fusesoc.core_projection import reconcile_projected_cores
 from booley.harness.setup.guidance_links import ensure_guidance_links
-from booley.runtime import dashboard_tasks
 
 project = Path(sys.argv[1])
 booley_dir = project / ".booley"
 ensure_guidance_links(project, booley_dir)
 reconcile_projected_cores(project)
-dashboard_tasks.reconcile(project, booley_dir)
+# Images without the Dashboard task module (boldaxolotl/booley#5678) skip it.
+# Only its absence is skipped: errors inside the module or reconcile still fail.
+if importlib.util.find_spec("booley.runtime.dashboard_tasks") is not None:
+    from booley.runtime import dashboard_tasks
+
+    dashboard_tasks.reconcile(project, booley_dir)
 PY
 
 # Claude Code's first run asks for a color theme, and because Booley pins the
