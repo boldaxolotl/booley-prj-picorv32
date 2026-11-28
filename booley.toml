@@ -11,12 +11,10 @@ enabled = true
 # root core fails the CAPI2 schema and the bundled targets use the legacy API.
 ignore_native_cores = true
 
-# Codex is the default Agent CLI: it runs on a local Codex login or, in GitHub
-# Codespaces, on the Booley demo gateway. Claude Code stays available with
-# `booley chat --cli claude`.
+# Codex is the default Agent CLI. Claude Code stays available: T3 Code lets
+# you choose either one per thread.
 #
-# `auth = "visitor"` is for the demo Codespace: each CLI uses the login the
-# visitor signs in with, and Codex falls back to the demo gateway. Outside a
+# `auth = "visitor"` is the retired demo Codespace's setting. Outside a
 # hand-written Sandbox it does not apply: on a local clone, `booley init`
 # replaces it with the policy detected from your own logins; commit that change
 # in your clone (README Quick start).
@@ -27,8 +25,8 @@ auth = "visitor"
 
 [sandbox]
 image = "booley-sandbox-riscv"
-# Fits a 16 GB machine, including the demo Codespace, and leaves room for the
-# editor. PicoRV32 Jobs peak well below it; `booley resources` shows the peaks.
+# Fits a 16 GB machine and leaves room for the browser and editor. PicoRV32
+# Jobs peak well below it; `booley resources` shows the peaks.
 memory = "8g"
 
 [flows.sim]

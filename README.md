@@ -1,26 +1,10 @@
 # PicoRV32 Booley demo
 
-## Try it in your browser
+## Quick start
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/boldaxolotl/booley-prj-picorv32?quickstart=1)
-
-One click gives you a running Booley with PicoRV32 in browser VS Code: no
-local install, macOS and Windows included. It's free: the 4-core Codespace
-runs on your own GitHub account's free monthly Codespaces quota (about 30
-hours a month on a free account), and the agent runs GPT-6 Luna on the Booley
-maintainer's account after a GitHub sign-in. You can run it on your own
-ChatGPT account instead, and chat with Claude Code on your own Claude
-account. The first launch takes 3-4 minutes while the container image builds. [START-HERE.md](START-HERE.md) opens automatically
-and walks you through signing in, then sends you to [Try the demo](#try-the-demo).
-
-## Quick start (local install)
-
-This section installs Booley on your own machine. In a Codespace, everything
-is already installed: skip to [Try the demo](#try-the-demo).
-
-Needs Booley 0.5.0 or later.
-
-[Install Booley](https://github.com/boldaxolotl/Booley#installation) (including `booley bootstrap`), then clone both repositories:
+Needs Booley 0.5.1 or later, Docker and a web browser.
+[Install Booley](https://github.com/boldaxolotl/Booley#installation)
+(including `booley bootstrap`), then clone both repositories:
 
 ```bash
 git clone https://github.com/YosysHQ/picorv32
@@ -30,8 +14,8 @@ git clone https://github.com/boldaxolotl/booley-prj-picorv32 .booley
 
 The demo's default Agent CLI is Codex, so sign in to Codex first
 (`codex login`, or an OpenAI API key in your shell). Claude Code is listed too:
-open it with `booley chat --cli claude`. To make it the default, set
-`default = "claude"` in `[agent]` of `.booley/booley.toml` before
+in T3 Code you choose Claude or Codex per thread. To make Claude Code the
+default, set `default = "claude"` in `[agent]` of `.booley/booley.toml` before
 initialization.
 
 Initialize the project on the host:
@@ -42,21 +26,25 @@ booley init
 
 `booley init` replaces the demo's `auth = "visitor"` in
 `.booley/booley.toml` with your agent sign-in choice, detected from your own
-logins. (`visitor` is the demo Codespace's setting.) Review the change and
-commit it in the `.booley` checkout:
+logins. Review the change and commit it in the `.booley` checkout:
 
 ```bash
 git -C .booley diff
 git -C .booley commit -am "Record my Booley agent setup"
 ```
 
-Open the `picorv32` folder in VS Code. A popup notification should offer
-**Reopen in Container**; choose it. If the popup does not appear, press `F1`
-(or `Ctrl+Shift+P`), then run **Dev Containers: Reopen in Container** from the
-Command Palette.
+Start the Sandbox:
 
-In a container terminal, build the generated firmware and run the deep Doctor
-gate:
+```bash
+booley session up
+```
+
+It prints a pairing link. Open it in a browser on this machine within 5
+minutes: T3 Code, Booley's user interface, opens with the `picorv32` Project.
+Start a thread on the main checkout and choose Codex or Claude.
+
+In that thread's terminal (a container terminal), build the generated
+firmware and run the deep Doctor gate:
 
 ```bash
 bash .booley/hooks/post-setup.sh
@@ -64,33 +52,32 @@ booley doctor --deep
 ```
 
 There shouldn't be any Doctor warnings. The demo sets `[sandbox] memory =
-"8g"`, which fits the 16 GB demo Codespace and most laptops. If Doctor warns
-that `[sandbox].memory` plus swap is more than your machine has, lower
-`memory` in `.booley/booley.toml`. For any other warning, use the
-`/booley-heal` skill.
+"8g"`, which fits most laptops. If Doctor warns that `[sandbox].memory` plus
+swap is more than your machine has, lower `memory` in `.booley/booley.toml`.
+For any other warning, type `/booley-heal` in the thread.
 
 ## Try the demo
 
 Run Flows one at a time, hand the agent the prepared Zbb change, then
-experiment on your own. In a Codespace, finish steps 1 and 2 of
-[START-HERE.md](START-HERE.md) first.
+experiment on your own.
 
 ### 1. Ask the agent to run things
 
-Start a chat with `booley` and try these, one at a time:
+In a T3 Code thread on the main checkout, try these, one at a time:
 
 > Check the project status and explain the available Targets.
 
 > Run the sim_core simulation.
 
-> Open the sim_core waveform and show me the first few instruction fetches
-> on the memory interface.
+> Show me the first few instruction fetches on the memory interface in the
+> sim_core waveform.
 
 > Synthesize synth_core and report its area and maximum clock frequency.
 
 The agent runs Booley Flows for each request, so the answers come from real
-tool runs rather than guesses. Waveforms open in the VaporView viewer, and the
-Booley Dashboard tab shows runs as they happen.
+tool runs rather than guesses. It reads the waveform itself with `bwave`;
+Booley has no waveform viewer for now. Click **Booley Dashboard** in T3
+Code's top bar to see the runs as they happen.
 
 ### 2. Main event: add a RISC-V extension and measure it
 
@@ -105,29 +92,27 @@ error, every simulation test passes, and `synth_core` reports its area and
 timing. Booley's own code runs the measurement, not the agent: every Flow,
 in a clean checkout of the commit, the same way each time.
 
-Start a chat with `booley` and ask:
+In T3 Code, start a new thread on a new worktree, so `main` stays
+untouched: T3 Code creates the worktree and its branch, and Booley prepares
+it, post-setup hook included. Then ask:
 
-> Create a zbb worktree and implement the design in
-> .booley/specs/zbb-design.md. Zbb may cost at most 11% more cells and 5%
-> more critical-path delay on synth_core. Measure the base first, then give
-> me a Measured Commit.
+> Implement the design in .booley/specs/zbb-design.md. Zbb may cost at most
+> 11% more cells and 5% more critical-path delay on synth_core. Measure the
+> base first, then give me a Measured Commit.
 
-The agent creates the worktree first, so `main` stays untouched. Then it
-works on its own: it writes the RTL, firmware test and testbench, runs the
-Flows, and fixes what they find. When a bound is unmet, it fixes the design
-and measures again. Expect about half an hour of your agent's usage: the demo
-allowance in a Codespace, or your own ChatGPT or Claude plan.
+The agent works on its own: it writes the RTL, firmware test and testbench,
+runs the Flows, and fixes what they find. When a bound is unmet, it fixes the
+design and measures again. Expect about half an hour of your own ChatGPT or
+Claude plan's usage.
 <!-- TODO(#4982): replace "half an hour" with the measured 0.5.0 run time. -->
 
-Follow along on the Booley Dashboard tab: the Sessions window shows the
-agent's session, with a `measuring` line under it while a measurement
-runs, and the Jobs window lists every Flow run.
+Follow along on the Booley Dashboard: pick the thread's worktree to see every
+Flow run, and the `J-MEAS` Job while a measurement runs.
 
 At the end the agent gives you the **Measurement Report**: a verdict line,
 each metric with its value and bound, and a Δ column against the base. A
 green header means every bound is met and the commit is Measured. The
-Δ column is where you check the 11% and 5%. On the Dashboard, `Enter` on the
-session's measurement line opens the same report.
+Δ column is where you check the 11% and 5%.
 
 To have the RTL checked against the ratified Zbb chapter as well, ask:
 
