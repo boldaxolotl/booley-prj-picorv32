@@ -12,24 +12,26 @@
 
 ## Setup and verification
 
-- In every fresh checkout or worktree, run
-  `bash .booley/hooks/post-setup.sh` before simulation. Do not commit
+- In the main checkout, run `bash .booley/hooks/post-setup.sh` before
+  simulation; `booley worktree prepare` runs it in a worktree. Do not commit
   the generated firmware images.
-- The Booley endpoints below exist **only inside the Session Runtime** (this Project's devcontainer). They are **MCP tools, not CLI programs**: check for them in your own MCP tool list, never with `command -v booley_status` / `which` / `booley_status --help`. A `$PATH` probe always comes back empty and will make you wrongly conclude the MCP tools are missing. If your harness hides MCP tools behind a code-mode sandbox, the list is `ALL_TOOLS` — search it for `mcp__booley__booley_status`.
-- At the start of a session, call `booley_status` and show its
+- The Booley endpoints below exist **only inside the Sandbox**. They are **MCP tools, not CLI programs**: check for them in your own MCP tool list, never with `command -v booley_status` / `which` / `booley_status --help`. A `$PATH` probe always comes back empty and will make you wrongly conclude the MCP tools are missing. If your harness hides MCP tools behind a code-mode sandbox, the list is `ALL_TOOLS` — search it for `mcp__booley__booley_status`.
+- At the start of a thread, call `booley_status` and show its
   status block.
 - Discover Targets with Booley instead of maintaining or relying on a Target
   list here. Use Booley Flows for RTL feedback and `booley shell -- <command>`
   for an explicitly requested one-off toolchain command.
-- If the Booley MCP tools are unavailable, reopen the project in its container
-  or run `booley session up && booley session enter`; do not substitute raw
+- If `booley_status` is absent from the MCP tool list, you are on the host.
+  Point the user to a T3 Code thread: run `booley session up` on the host,
+  open the pairing link it prints in a browser, and start a thread (or, for a
+  shell in the Sandbox, run `booley session enter`); do not substitute raw
   host EDA commands.
 
 ## Other revisions
 
-- Create additional checkouts with Booley's worktree helper, not bare Git
-  worktrees or copied/symlinked live Booley state. Run the copied post-setup
-  hook with `BOOLEY_WORKTREE` set to the new root, and pass that root as
-  `work_dir` to Booley tools.
+- Another branch or commit: work in a T3 Code thread's worktree, or make one
+  with `git worktree add` and run `booley worktree prepare` in it before
+  anything else; never copy `.booley/`. Pass that root as `work_dir` to
+  Booley tools.
 - For QoR comparisons against an earlier commit, prefer the Flow's `baseline`
   argument.
